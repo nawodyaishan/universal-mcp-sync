@@ -97,16 +97,8 @@ func TestScanEmptyHome(t *testing.T) {
 	}
 }
 
-func TestScanDetectsConflictSymlinkAndSunsetWarning(t *testing.T) {
+func TestScanDetectsConflictAndSymlink(t *testing.T) {
 	homeDir := t.TempDir()
-
-	geminiSettings := filepath.Join(homeDir, ".gemini", "settings.json")
-	if err := os.MkdirAll(filepath.Dir(geminiSettings), 0o700); err != nil {
-		t.Fatalf("MkdirAll returned error: %v", err)
-	}
-	if err := os.WriteFile(geminiSettings, []byte("{\"mcpServers\":{\"context7\":{\"url\":\"https://context7.example/mcp\"}}}\n"), 0o600); err != nil {
-		t.Fatalf("WriteFile returned error: %v", err)
-	}
 
 	repoCurrent := filepath.Join(homeDir, ".gemini", "config", "mcp_config.json")
 	if err := os.MkdirAll(filepath.Dir(repoCurrent), 0o700); err != nil {
@@ -169,10 +161,6 @@ func TestScanDetectsConflictSymlinkAndSunsetWarning(t *testing.T) {
 		t.Fatalf("expected symlink candidate in %#v", antigravity.Candidates)
 	}
 
-	gemini := findClientFinding(t, report, "gemini-cli")
-	if len(gemini.Warnings) == 0 {
-		t.Fatalf("expected Gemini sunset warning, got %#v", gemini)
-	}
 }
 
 func TestScanMalformedCodexConfig(t *testing.T) {
@@ -212,15 +200,14 @@ func TestFormatAndMarshalReport(t *testing.T) {
 	report := Report{
 		Platform: "darwin",
 		Clients: []ClientFinding{{
-			ID:         "gemini-cli",
-			Name:       "Gemini CLI",
+			ID:         "antigravity-cli",
+			Name:       "Antigravity CLI",
 			Confidence: ConfidenceMedium,
-			Warnings:   []string{"Gemini CLI is deprecated and should migrate to Antigravity."},
 		}},
 	}
 
 	formatted := FormatReport(report)
-	if !strings.Contains(formatted, "Gemini CLI") {
+	if !strings.Contains(formatted, "Antigravity CLI") {
 		t.Fatalf("formatted report missing client: %s", formatted)
 	}
 
@@ -254,4 +241,41 @@ func findClientFinding(t *testing.T, report Report, id string) ClientFinding {
 	}
 	t.Fatalf("missing client %s in %#v", id, report.Clients)
 	return ClientFinding{}
+}
+
+func TestScanDetectsManagedSettings(t *testing.T) {
+	homeDir := t.TempDir()
+	fakeManaged := filepath.Join(homeDir, "managed-settings.json")
+	if err := os.WriteFile(fakeManaged, []byte("{}"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	doc, err := New(Options{
+		HomeDir:              homeDir,
+		CheckRuntimes:        false,
+		ManagedSettingsPaths: []string{fakeManaged},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc.lookPath = func(string) (string, error) { return "", os.ErrNotExist }
+
+	report, err := doc.Scan(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cc := findClientFinding(t, report, "claude-code")
+	if len(cc.Warnings) == 0 {
+		t.Errorf("expected managed-settings warning for Claude Code, got none")
+	}
+	found := false
+	for _, w := range cc.Warnings {
+		if strings.Contains(w, "managed configuration") {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected 'managed configuration' in warnings, got %v", cc.Warnings)
+	}
 }

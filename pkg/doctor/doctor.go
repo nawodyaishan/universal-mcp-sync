@@ -148,7 +148,38 @@ func (d *Doctor) scanClient(client manifest.ClientManifest) (ClientFinding, []st
 	hints, clientWarnings, globalWarnings := d.clientHintsAndWarnings(client, finding)
 	finding.MigrationHints = hints
 	finding.Warnings = append(finding.Warnings, clientWarnings...)
+
+	// Warn when Claude Code managed-settings are deployed (org policy may override usync).
+	if client.ID == manifest.ClientClaudeCode {
+		if detected := d.checkManagedSettings(); len(detected) > 0 {
+			finding.Warnings = append(finding.Warnings,
+				fmt.Sprintf("Claude Code managed configuration detected (%s); usync changes to user/local scope may be overridden by org policy.",
+					strings.Join(detected, ", ")))
+		}
+	}
+
 	return finding, globalWarnings, nil
+}
+
+var defaultManagedSettingsPaths = []string{
+	"/etc/claude-code/managed-settings.json",
+	"/etc/claude-code/managed-mcp.json",
+}
+
+// checkManagedSettings returns paths from ManagedSettingsPaths that exist on disk.
+// nil ManagedSettingsPaths → use package defaults; empty (non-nil) slice → skip check.
+func (d *Doctor) checkManagedSettings() []string {
+	paths := d.options.ManagedSettingsPaths
+	if paths == nil {
+		paths = defaultManagedSettingsPaths
+	}
+	var found []string
+	for _, p := range paths {
+		if _, err := os.Stat(p); err == nil {
+			found = append(found, p)
+		}
+	}
+	return found
 }
 
 func (d *Doctor) scanCandidate(candidate manifest.ConfigCandidate) (CandidateFinding, bool, error) {
