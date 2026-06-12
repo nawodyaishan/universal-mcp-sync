@@ -1,6 +1,7 @@
 package app
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -50,12 +51,16 @@ type Operation struct {
 	CLIRemoveArgs   []string
 }
 
+type TargetPathOverrides map[config.AppID]string
+type TargetFileOverrides map[config.AppID][]config.TargetFile
+
 type ApplyResult struct {
 	Plan           ExecutionPlan
 	Warnings       []string
 	BackupPaths    []string
 	Verification   []verify.Result
 	UpdatedTargets []string
+	SkippedTargets []string // files skipped because content is byte-identical to existing
 	RolledBack     []string
 	RollbackFailed []string
 }
@@ -74,6 +79,7 @@ type osRunner struct{}
 type preparedWrite struct {
 	op      Operation
 	content []byte
+	skipped bool // true when bytes.Equal(existing file bytes, content)
 }
 
 func NewManager(homeDir string, now func() time.Time, runner CommandRunner) (*Manager, error) {
@@ -124,8 +130,42 @@ func (m *Manager) PrepareProvider(
 	selected map[config.AppID]bool,
 	assignments map[config.AppID]int,
 ) (ExecutionPlan, error) {
+	return m.PrepareProviderWithTargetFiles(prov, profiles, selected, assignments, nil)
+}
+
+func (m *Manager) PrepareProviderWithTargetPaths(
+	prov provider.MCPProvider,
+	profiles []provider.CredentialProfile,
+	selected map[config.AppID]bool,
+	assignments map[config.AppID]int,
+	targetPaths TargetPathOverrides,
+) (ExecutionPlan, error) {
+	targetFiles, err := targetFilesFromPaths(m.Apps, targetPaths)
+	if err != nil {
+		return ExecutionPlan{}, err
+	}
+	return m.PrepareProviderWithTargetFiles(prov, profiles, selected, assignments, targetFiles)
+}
+
+func (m *Manager) PrepareProviderWithTargetFiles(
+	prov provider.MCPProvider,
+	profiles []provider.CredentialProfile,
+	selected map[config.AppID]bool,
+	assignments map[config.AppID]int,
+	targetFiles TargetFileOverrides,
+) (ExecutionPlan, error) {
 	if len(profiles) == 0 {
-		return ExecutionPlan{}, fmt.Errorf("at least one credential profile is required")
+		if len(prov.RequiredCredentials()) > 0 {
+			return ExecutionPlan{}, fmt.Errorf("at least one credential profile is required")
+		}
+		profiles = []provider.CredentialProfile{{
+			ProviderID: prov.ID(),
+			Values:     map[string]string{},
+			Label:      "Default",
+		}}
+		if len(assignments) == 0 {
+			assignments = DefaultAssignments(selected, len(profiles))
+		}
 	}
 
 	plan := ExecutionPlan{}
@@ -134,6 +174,9 @@ func (m *Manager) PrepareProvider(
 	for _, appConfig := range m.Apps {
 		if !selected[appConfig.ID] {
 			continue
+		}
+		if files := targetFiles[appConfig.ID]; len(files) > 0 {
+			appConfig.Files = append([]config.TargetFile(nil), files...)
 		}
 
 		index, ok := assignments[appConfig.ID]
@@ -222,6 +265,51 @@ func (m *Manager) PrepareProvider(
 	return plan, nil
 }
 
+func targetFilesFromPaths(apps []config.AppConfig, targetPaths TargetPathOverrides) (TargetFileOverrides, error) {
+	if len(targetPaths) == 0 {
+		return nil, nil
+	}
+	out := make(TargetFileOverrides)
+	for appID, targetPath := range targetPaths {
+		if targetPath == "" {
+			continue
+		}
+		appConfig, ok := appConfigByID(apps, appID)
+		if !ok {
+			return nil, fmt.Errorf("%s: selected app config not found", appID)
+		}
+		var err error
+		appConfig, err = appConfigForTargetPath(appConfig, targetPath)
+		if err != nil {
+			return nil, err
+		}
+		out[appID] = append([]config.TargetFile(nil), appConfig.Files...)
+	}
+	if len(out) == 0 {
+		return nil, nil
+	}
+	return out, nil
+}
+
+func appConfigByID(apps []config.AppConfig, id config.AppID) (config.AppConfig, bool) {
+	for _, appConfig := range apps {
+		if appConfig.ID == id {
+			return appConfig, true
+		}
+	}
+	return config.AppConfig{}, false
+}
+
+func appConfigForTargetPath(appConfig config.AppConfig, targetPath string) (config.AppConfig, error) {
+	for _, file := range appConfig.Files {
+		if filepath.Clean(file.Path) == filepath.Clean(targetPath) {
+			appConfig.Files = []config.TargetFile{file}
+			return appConfig, nil
+		}
+	}
+	return config.AppConfig{}, fmt.Errorf("%s: resolved target path is not a known config candidate", appConfig.Name)
+}
+
 func providerPrerequisiteWarning(providerID string, cfg provider.MCPConfig, runner CommandRunner) string {
 	if cfg.Type != provider.TransportStdio || cfg.Command != "docker" {
 		return ""
@@ -299,6 +387,12 @@ func (m *Manager) Apply(plan ExecutionPlan) (ApplyResult, error) {
 	outcomes := make([]config.WriteOutcome, 0, len(prepared))
 	seenFiles := make(map[string]config.FileKind, len(prepared))
 	for _, item := range prepared {
+		if item.skipped {
+			m.logDebug("skipping identical write", "path", item.op.Path)
+			result.SkippedTargets = append(result.SkippedTargets, item.op.Path)
+			seenFiles[item.op.Path] = item.op.Kind
+			continue
+		}
 		m.logDebug("writing target", "app", item.op.AppName, "target", item.op.FileLabel, "path", item.op.Path)
 		outcome, err := m.WriteConfig(item.op.Path, item.content, m.Now())
 		if err != nil {
@@ -317,9 +411,21 @@ func (m *Manager) Apply(plan ExecutionPlan) (ApplyResult, error) {
 
 	for _, op := range cliOps {
 		m.logInfo("running external cli update", "app", op.AppName)
-		if err := m.applyClaudeCode(op, &result); err != nil {
-			m.logError("external cli update failed", "app", op.AppName, "error", err.Error())
-			return result, err
+		switch op.Kind {
+		case config.FileKindCodexCLIAdd:
+			args := buildCodexCLIAddArgs(op.ProviderID, op.Config)
+			if _, runErr := m.Runner.Run("codex", args...); runErr != nil {
+				result.Warnings = append(result.Warnings,
+					fmt.Sprintf("codex mcp add %s: %v", op.ProviderID, runErr))
+			} else {
+				result.UpdatedTargets = append(result.UpdatedTargets, "codex mcp add "+op.ProviderID)
+				seenApps[op.AppID] = true
+			}
+		default:
+			if err := m.applyClaudeCode(op, &result); err != nil {
+				m.logError("external cli update failed", "app", op.AppName, "error", err.Error())
+				return result, err
+			}
 		}
 	}
 
@@ -364,9 +470,6 @@ func (m *Manager) Apply(plan ExecutionPlan) (ApplyResult, error) {
 		case config.AppCodexCLI:
 			result.Verification = append(result.Verification,
 				verify.VerifyOptionalCLI(m.Runner, "codex", "mcp", "get", provID))
-		case config.AppGeminiCLI:
-			result.Verification = append(result.Verification,
-				verify.VerifyOptionalCLI(m.Runner, "gemini", "mcp", "get", provID))
 		case config.AppAntigravityCLI:
 			result.Verification = append(result.Verification,
 				verify.VerifyOptionalCLI(m.Runner, "antigravity", "mcp", "get", provID))
@@ -408,7 +511,6 @@ func DefaultAssignments(selected map[config.AppID]bool, keyCount int) map[config
 	if keyCount == 2 {
 		preferred := map[config.AppID]int{
 			config.AppClaudeDesktop:  0,
-			config.AppGeminiCLI:      0,
 			config.AppAntigravityCLI: 0,
 			config.AppCodexCLI:       0,
 			config.AppClaudeCode:     1,
@@ -482,6 +584,13 @@ func FormatApplyResult(result ApplyResult) string {
 		}
 	}
 
+	if len(result.SkippedTargets) > 0 {
+		fmt.Fprintf(&builder, "Unchanged (%d)\n", len(result.SkippedTargets))
+		for _, target := range result.SkippedTargets {
+			builder.WriteString("- " + target + "\n")
+		}
+	}
+
 	if len(result.RolledBack) > 0 {
 		builder.WriteString("Rolled Back\n")
 		for _, target := range result.RolledBack {
@@ -548,13 +657,13 @@ func (m *Manager) prepareOperations(plan ExecutionPlan, result *ApplyResult) ([]
 		switch op.Kind {
 		case config.FileKindMCPServers, config.FileKindBareMCPServers, config.FileKindNamedServer, config.FileKindCodexTOML:
 			m.logDebug("preparing file operation", "app", op.AppName, "path", op.Path)
-			item, err := m.prepareFileOperation(op)
+			item, err := m.prepareFileOperation(op, "")
 			if err != nil {
 				return nil, nil, nil, err
 			}
 			prepared = append(prepared, item)
-		case config.FileKindClaudeCodeCLI:
-			m.logDebug("preparing Claude Code CLI operation", "app", op.AppName)
+		case config.FileKindClaudeCodeCLI, config.FileKindCodexCLIAdd:
+			m.logDebug("preparing CLI operation", "app", op.AppName)
 			cliOps = append(cliOps, op)
 		default:
 			return nil, nil, nil, fmt.Errorf("unsupported operation kind %q", op.Kind)
@@ -564,7 +673,7 @@ func (m *Manager) prepareOperations(plan ExecutionPlan, result *ApplyResult) ([]
 	return prepared, cliOps, seenApps, nil
 }
 
-func (m *Manager) prepareFileOperation(op Operation) (preparedWrite, error) {
+func (m *Manager) prepareFileOperation(op Operation, planID string) (preparedWrite, error) {
 	if err := validateOperationPath(m.HomeDir, op.Scope, op.Path); err != nil {
 		return preparedWrite{}, fmt.Errorf("%s (%s): %w", op.AppName, op.FileLabel, err)
 	}
@@ -578,37 +687,41 @@ func (m *Manager) prepareFileOperation(op Operation) (preparedWrite, error) {
 
 	op.Config.Headers = client.HeadersFor(op.AppID, op.Config.Headers) // augment per-client
 
+	// _usync provenance marker — excluded from Antigravity targets (serverUrl format).
+	isAntigravity := op.AppID == config.AppAntigravityCLI || op.AppID == config.AppAntigravity
+	var usyncExtra map[string]any
+	if !isAntigravity {
+		usyncExtra = config.UsyncMeta(planID, m.Now().UTC().Format(time.RFC3339))
+	}
+
 	var updated []byte
 	switch op.Kind {
 	case config.FileKindMCPServers:
 		rootKey := "mcpServers"
 		urlFieldName := "url"
-		var extra map[string]any
+		extra := usyncExtra
 
 		switch op.AppID {
-		case config.AppGeminiCLI:
-			urlFieldName = "httpUrl"
 		case config.AppAntigravityCLI, config.AppAntigravity, config.AppWindsurf:
 			urlFieldName = "serverUrl"
 		case config.AppRooCode:
-			if op.Config.Type == provider.TransportStdio {
-				extra = map[string]any{"type": "stdio"}
-			} else {
-				extra = map[string]any{"type": "streamable-http"}
+			kindExtra := map[string]any{"type": "stdio"}
+			if op.Config.Type != provider.TransportStdio {
+				kindExtra = map[string]any{"type": "streamable-http"}
 			}
+			// merge kindExtra into usyncExtra
+			extra = mergeExtra(usyncExtra, kindExtra)
 		}
 
 		m.logDebug("updating MCPServers JSON", "app", op.AppID, "rootKey", rootKey, "urlField", urlFieldName)
 		updated, err = config.UpdateMCPServersJSON(data, op.ProviderID, rootKey, urlFieldName, op.Config, extra)
 	case config.FileKindBareMCPServers:
 		urlFieldName := "url"
-		if op.AppID == config.AppGeminiCLI {
-			urlFieldName = "httpUrl"
-		} else if op.AppID == config.AppAntigravityCLI {
+		if op.AppID == config.AppAntigravityCLI {
 			urlFieldName = "serverUrl"
 		}
 		m.logDebug("updating BareMCPServers JSON", "app", op.AppID, "urlField", urlFieldName)
-		updated, err = config.UpdateBareMCPServersJSON(data, op.ProviderID, urlFieldName, op.Config, nil)
+		updated, err = config.UpdateBareMCPServersJSON(data, op.ProviderID, urlFieldName, op.Config, usyncExtra)
 	case config.FileKindNamedServer:
 		if op.AppID == config.AppOpenCode {
 			updated, err = config.UpdateOpenCodeJSON(data, op.ProviderID, op.Config)
@@ -616,13 +729,13 @@ func (m *Manager) prepareFileOperation(op Operation) (preparedWrite, error) {
 		}
 		rootKey := ""
 		urlFieldName := "url"
-		var extra map[string]any
+		extra := usyncExtra
 
 		switch op.AppID {
 		case config.AppVSCode:
 			rootKey = "servers"
 			if op.Config.Type != provider.TransportStdio {
-				extra = map[string]any{"type": "http"}
+				extra = mergeExtra(usyncExtra, map[string]any{"type": "http"})
 			}
 		case config.AppZed:
 			rootKey = "context_servers"
@@ -644,7 +757,36 @@ func (m *Manager) prepareFileOperation(op Operation) (preparedWrite, error) {
 	}
 
 	m.logDebug("prepared content", "app", op.AppName, "size", len(updated))
-	return preparedWrite{op: op, content: updated}, nil
+	skipped := len(data) > 0 && bytes.Equal(data, updated)
+	return preparedWrite{op: op, content: updated, skipped: skipped}, nil
+}
+
+// buildCodexCLIAddArgs returns args for `codex mcp add`.
+// Stdio: codex mcp add <name> -- <command> [args...]
+// HTTP:  codex mcp add --url <url> --bearer-token-env-var <envvar> <name>
+func buildCodexCLIAddArgs(providerID string, cfg provider.MCPConfig) []string {
+	if cfg.Type == provider.TransportStdio {
+		args := []string{"mcp", "add", providerID, "--"}
+		args = append(args, cfg.Command)
+		return append(args, cfg.Args...)
+	}
+	args := []string{"mcp", "add", "--url", cfg.URL}
+	for k := range cfg.Headers {
+		args = append(args, "--bearer-token-env-var", k)
+		break // first header key only
+	}
+	return append(args, providerID)
+}
+
+// mergeExtra merges src into dst, returning dst. dst may be nil.
+func mergeExtra(dst, src map[string]any) map[string]any {
+	if dst == nil {
+		dst = make(map[string]any, len(src))
+	}
+	for k, v := range src {
+		dst[k] = v
+	}
+	return dst
 }
 
 func (m *Manager) rollback(outcomes []config.WriteOutcome, result *ApplyResult) []string {
