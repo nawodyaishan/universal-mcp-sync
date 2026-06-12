@@ -60,7 +60,7 @@ func runReplayCommand(args []string, stdout, stderr io.Writer) int {
 
 	digest := sha256Hex(finalView)
 	if emitMatrix {
-		fmt.Fprintln(stdout, emitMatrixStub(spec.Name, entries, finalScreen, finalPC, digest))
+		_, _ = fmt.Fprintln(stdout, emitMatrixStub(spec.Name, entries, finalScreen, finalPC, digest))
 		return 0
 	}
 	_, _ = fmt.Fprintln(stdout, finalView)
@@ -86,7 +86,7 @@ func parseTranscript(path string) ([]tui.RecordEntry, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open transcript: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	var out []tui.RecordEntry
 	scanner := bufio.NewScanner(f)
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
@@ -121,20 +121,73 @@ func replayAgainstFixture(d *uxexplore.Driver, entries []tui.RecordEntry) (strin
 	if err != nil {
 		return "", "", "", err
 	}
+	if shouldPrimeDoctorMode(m, entries) {
+		var quit bool
+		m, quit, err = replayDashboardKey(m, buildReplayKey("d"))
+		if err != nil {
+			return "", "", "", err
+		}
+		if quit {
+			snap := m.Snapshot()
+			return m.View(), snap.Screen, snap.BlockReason, nil
+		}
+	}
 	for _, e := range entries {
 		if e.Kind != "key" {
 			continue
 		}
-		msg := buildReplayKey(e.Key)
-		next, _ := m.Update(msg)
-		dm, ok := next.(tui.DashboardModel)
-		if !ok {
-			return "", "", "", fmt.Errorf("replay: model is not DashboardModel after key %q", e.Key)
+		if strings.HasPrefix(e.Screen, "Wizard") {
+			continue
 		}
-		m = dm
+		msg := buildReplayKey(e.Key)
+		var quit bool
+		m, quit, err = replayDashboardKey(m, msg)
+		if err != nil {
+			return "", "", "", fmt.Errorf("replay key %q: %w", e.Key, err)
+		}
+		if quit || m.RouteToWizard {
+			break
+		}
 	}
 	snap := m.Snapshot()
 	return m.View(), snap.Screen, snap.BlockReason, nil
+}
+
+func shouldPrimeDoctorMode(m tui.DashboardModel, entries []tui.RecordEntry) bool {
+	if m.Snapshot().Screen != "Welcome" {
+		return false
+	}
+	for _, e := range entries {
+		if e.Kind != "key" {
+			continue
+		}
+		return e.Screen == "" || e.Screen == "Doctor"
+	}
+	return false
+}
+
+func replayDashboardKey(m tui.DashboardModel, msg tea.KeyMsg) (tui.DashboardModel, bool, error) {
+	next, cmd := m.Update(msg)
+	dm, ok := next.(tui.DashboardModel)
+	if !ok {
+		return m, false, fmt.Errorf("model is not DashboardModel")
+	}
+	for steps := 0; steps < 16 && cmd != nil; steps++ {
+		follow := cmd()
+		if follow == nil {
+			return dm, false, nil
+		}
+		if _, isQuit := follow.(tea.QuitMsg); isQuit {
+			return dm, true, nil
+		}
+		next, cmd = dm.Update(follow)
+		var ok bool
+		dm, ok = next.(tui.DashboardModel)
+		if !ok {
+			return dm, false, fmt.Errorf("model is not DashboardModel after command")
+		}
+	}
+	return dm, false, nil
 }
 
 func buildReplayKey(label string) tea.KeyMsg {

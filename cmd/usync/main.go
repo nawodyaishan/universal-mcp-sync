@@ -152,8 +152,20 @@ func run(args []string, stdout, stderr io.Writer) int {
 
 	if !apply && !dryRun {
 		var finalModel tea.Model
+		var rec *tui.SessionRecorder
 		if wizard {
 			model := tui.NewWizardModel(manager, initialKeys, initialRaw)
+			if recordEnabled {
+				var recErr error
+				rec, recErr = tui.NewSessionRecorder(recordPath)
+				if recErr != nil {
+					_, _ = fmt.Fprintf(stderr, "--record: %v\n", recErr)
+					return 1
+				}
+				defer func() { _ = rec.Close() }()
+				model = model.WithRecorder(rec)
+				_, _ = fmt.Fprintf(stderr, "recording session to %s\n", rec.Path())
+			}
 			program := tea.NewProgram(model, tea.WithAltScreen())
 			finalModel, err = program.Run()
 		} else {
@@ -172,13 +184,15 @@ func run(args []string, stdout, stderr io.Writer) int {
 					Label:      exa.RedactKey(initialKeys[0]),
 				}}
 			}
-			model := tui.NewDashboardModel(scanner, dashMgr, dashProfiles)
+			model := tui.NewDashboardModelWithWelcome(scanner, dashMgr, dashProfiles)
 			if recordEnabled {
-				rec, recErr := tui.NewSessionRecorder(recordPath)
+				var recErr error
+				rec, recErr = tui.NewSessionRecorder(recordPath)
 				if recErr != nil {
 					_, _ = fmt.Fprintf(stderr, "--record: %v\n", recErr)
 					return 1
 				}
+				defer func() { _ = rec.Close() }()
 				model = model.WithRecorder(rec)
 				_, _ = fmt.Fprintf(stderr, "recording session to %s\n", rec.Path())
 			}
@@ -187,6 +201,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 
 			if m, ok := finalModel.(tui.DashboardModel); ok && m.RouteToWizard {
 				wizardModel := tui.NewWizardModel(manager, initialKeys, initialRaw)
+				if rec != nil {
+					wizardModel = wizardModel.WithRecorder(rec)
+				}
 				program := tea.NewProgram(wizardModel, tea.WithAltScreen())
 				finalModel, err = program.Run()
 			}
