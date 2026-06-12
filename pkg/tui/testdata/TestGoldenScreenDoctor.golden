@@ -1,0 +1,16 @@
+│                                                                          
+│  [mcp] Doctor Mode  /  scan, choose, apply                               
+│   ✓ Start  ->  2 Scan  ->  3 Provider  ->  4 Targets  ->  5 Apply        
+│                                                                          
+│  System Status                                                           
+│  Doctor scan summary for installed AI clients and MCP config surfaces.   
+│                                                                          
+│  clients  0    runtimes  0    warnings  0    conflicts  0                
+│                                                                          
+│   No AI clients detected                                                 
+│    Install or launch a supported client, then rescan.                    
+│                                                                          
+│                                                                          
+│  [r] rescan  [w] wizard  [?] help  [q] quit                              
+│  Manager unavailable - press [w] for wizard                              
+│                                                                          

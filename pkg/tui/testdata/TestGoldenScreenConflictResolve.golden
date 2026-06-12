@@ -1,0 +1,22 @@
+│                                                                          
+│  [mcp] Doctor Mode  /  scan, choose, apply                               
+│   ✓ Start  ->  ✓ Scan  ->  ✓ Provider  ->  4 Targets  ->  5 Apply        
+│                                                                          
+│  Resolve Conflict: Antigravity IDE                                       
+│  Choose the config surface that should be managed for this client.       
+│                                                                          
+│    ╭────────────────────────────────────────────────╮                    
+│    │ [1] repo-current                               │                    
+│    │ Path      /home/.gemini/config/mcp_config.json │                    
+│    │ Parse      ok                                  │                    
+│    │ Providers exa                                  │                    
+│    ╰────────────────────────────────────────────────╯                    
+│    ╭──────────────────────────────────────────────────────────╮          
+│    │ [2] alternate-symlink                                    │          
+│    │ Path      /home/.gemini/antigravity/mcp_config.json      │          
+│    │ Symlink   /home/.gemini/antigravity-data/mcp_config.json │          
+│    │ Parse      ok                                            │          
+│    │ Providers (none)                                         │          
+│    ╰──────────────────────────────────────────────────────────╯          
+│  [s] skip client  [Esc] cancel  [1] use this  [2] use this               
+│                                                                          

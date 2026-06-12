@@ -1,0 +1,19 @@
+│                                                                          
+│  [mcp] Doctor Mode  /  scan, choose, apply                               
+│   ✓ Start  ->  ✓ Scan  ->  ✓ Provider  ->  4 Targets  ->  5 Apply        
+│                                                                          
+│  │ Help - Select Targets                                                 
+│  │                                                                       
+│  │ Navigation                                                            
+│  │ ↑ / k           move up                                               
+│  │ ↓ / j           move down                                             
+│  │ space           toggle selected target                                
+│  │ i               toggle workspace targets                              
+│  │ enter           build plan                                            
+│  │ r               open conflict resolution                              
+│  │ esc             back to provider readiness                            
+│  │                                                                       
+│  │ Global                                                                
+│  │ ?               close help                                            
+│  │ q / ctrl+c      quit                                                  
+│                                                                          

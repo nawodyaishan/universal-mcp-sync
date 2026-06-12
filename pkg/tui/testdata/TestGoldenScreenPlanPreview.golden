@@ -1,0 +1,18 @@
+│                                                                          
+│  [mcp] Doctor Mode  /  scan, choose, apply                               
+│   ✓ Start  ->  ✓ Scan  ->  ✓ Provider  ->  ✓ Targets  ->  5 Apply        
+│                                                                          
+│  Plan Preview                                                            
+│  Review the saved plan before any local config files are changed.        
+│                                                                          
+│  Saved MCP plan                                                          
+│  ==============                                                          
+│  plan id: test-plan-id-golden                                            
+│  provider: exa                                                           
+│  created: 0001-01-01T00:00:00Z                                           
+│  expires: 0001-01-01T00:00:00Z                                           
+│  Operations                                                              
+│  No config files were written.                                           
+│  Press [y/Enter] to apply or [n/Esc] to cancel                           
+│                                                                          
+│                                                                          

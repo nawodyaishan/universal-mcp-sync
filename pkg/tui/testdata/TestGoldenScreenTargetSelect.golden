@@ -1,0 +1,17 @@
+│                                                                          
+│  [mcp] Doctor Mode  /  scan, choose, apply                               
+│   ✓ Start  ->  ✓ Scan  ->  ✓ Provider  ->  4 Targets  ->  5 Apply        
+│                                                                          
+│  Select Targets                                                          
+│  Pick the client config files that should receive this MCP server.       
+│                                                                          
+│  selected  0    available  0    workspace  off    conflicts  0           
+│                                                                          
+│   No targets selected                                                    
+│    Select at least one target before planning.                           
+│                                                                          
+│                                                                          
+│  [↑↓] navigate  [Space] toggle  [i] workspace(off)  [Esc] back  [q]      
+│  quit                                                                    
+│  Select at least one target to enable [Enter]                            
+│                                                                          

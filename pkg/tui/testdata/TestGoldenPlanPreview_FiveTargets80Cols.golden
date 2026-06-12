@@ -1,0 +1,38 @@
+│                                                                          
+│  [mcp] Doctor Mode  /  scan, choose, apply                               
+│   ✓ Start  ->  ✓ Scan  ->  ✓ Provider  ->  ✓ Targets  ->  5 Apply        
+│                                                                          
+│  Plan Preview                                                            
+│  Review the saved plan before any local config files are changed.        
+│                                                                          
+│  Saved MCP plan                                                          
+│  ==============                                                          
+│  plan id: test-plan-five-targets                                         
+│  provider: exa                                                           
+│  created: 0001-01-01T00:00:00Z                                           
+│  expires: 0001-01-01T00:00:00Z                                           
+│  Operations                                                              
+│  - Claude Code [update]                                                  
+│    path: /home/.claude.json                                              
+│    scope: user                                                           
+│    summary: Claude Code: update exa [cli, credential=test]               
+│  - Cursor [update]                                                       
+│    path: /home/.cursor/mcp.json                                          
+│    scope: global                                                         
+│    summary: Cursor: update exa [http, credential=test]                   
+│  - VS Code [update]                                                      
+│    path: /home/.config/Code/User/mcp.json                                
+│    scope: user                                                           
+│    summary: VS Code: update exa [http, credential=test]                  
+│  - Antigravity CLI [update]                                              
+│    path: /home/.gemini/antigravity-cli/mcp_config.json                   
+│    scope: user                                                           
+│    summary: Antigravity CLI: update exa [http, credential=test]          
+│  - Codex CLI [create]                                                    
+│    path: /home/.codex/config.toml                                        
+│    scope: user                                                           
+│    summary: Codex CLI: create exa [http, credential=test]                
+│  No config files were written.                                           
+│  Press [y/Enter] to apply or [n/Esc] to cancel                           
+│                                                                          
+│                                                                          

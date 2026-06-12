@@ -1,0 +1,14 @@
+│                                                                          
+│  [mcp] Doctor Mode  /  scan, choose, apply                               
+│   ✓ Start  ->  ✓ Scan  ->  ✓ Provider  ->  ✓ Targets  ->  5 Apply        
+│                                                                          
+│  Apply Result                                                            
+│  Final write status and follow-up scan.                                  
+│                                                                          
+│  MCP sync result                                                         
+│  ===============                                                         
+│  Updated                                                                 
+│  - /home/.gemini/antigravity-cli/mcp_config.json                         
+│  Restart the affected apps to reload the updated MCP configuration.      
+│  [r] rescan  [q] quit                                                    
+│                                                                          

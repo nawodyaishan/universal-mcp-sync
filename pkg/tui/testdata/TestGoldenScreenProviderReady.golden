@@ -1,0 +1,13 @@
+│                                                                          
+│  [mcp] Doctor Mode  /  scan, choose, apply                               
+│   ✓ Start  ->  ✓ Scan  ->  3 Provider  ->  4 Targets  ->  5 Apply        
+│                                                                          
+│  Provider Readiness                                                      
+│  Choose the MCP server profile to install.                               
+│                                                                          
+│  providers  0    ready  0    attention  0                                
+│                                                                          
+│                                                                          
+│  [↑↓] navigate  [v] live validate  [Enter] select  [Esc] back  [?] help  
+│  [q] quit                                                                
+│                                                                          

@@ -1,0 +1,18 @@
+│                                                                          
+│  [mcp] Doctor Mode  /  scan, choose, apply                               
+│   ✓ Start  ->  ✓ Scan  ->  3 Provider  ->  4 Targets  ->  5 Apply        
+│                                                                          
+│  │ Help - Provider Readiness                                             
+│  │                                                                       
+│  │ Navigation                                                            
+│  │ ↑ / k           move up                                               
+│  │ ↓ / j           move down                                             
+│  │ enter           select and validate provider                          
+│  │ v               run live validation                                   
+│  │ r               resolve conflicts when shown                          
+│  │ esc             back to system status                                 
+│  │                                                                       
+│  │ Global                                                                
+│  │ ?               close help                                            
+│  │ q / ctrl+c      quit                                                  
+│                                                                          
