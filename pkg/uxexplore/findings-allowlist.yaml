@@ -181,3 +181,24 @@ allowlist:
   - matrix_id: DM-P2ed1bd5d
     reason: "baseline unadvertised-key on TargetSelect/"
     expires_at: 2026-07-24
+  - matrix_id: DM-P50041362
+    reason: "same-pattern as allowlisted CredentialEntry/conflict-unresolved silent-noop; new fixture path from ConflictBlocked removal"
+    expires_at: 2026-07-30
+  - matrix_id: DM-P67cf9716
+    reason: "same-pattern as allowlisted TargetSelect/conflict-unresolved invariant-violation; new fixture path from ConflictBlocked removal"
+    expires_at: 2026-07-30
+  - matrix_id: DM-P8c204b20
+    reason: "same-pattern as allowlisted TargetSelect/conflict-unresolved invariant-violation; new fixture path from ConflictBlocked removal"
+    expires_at: 2026-07-30
+  - matrix_id: DM-P98dcce11
+    reason: "same-pattern as allowlisted TargetSelect/conflict-unresolved invariant-violation; new fixture path from ConflictBlocked removal"
+    expires_at: 2026-07-30
+  - matrix_id: DM-Pe47f5ab0
+    reason: "same-pattern as allowlisted CredentialEntry/conflict-unresolved silent-noop; new fixture path from ConflictBlocked removal"
+    expires_at: 2026-07-30
+  - matrix_id: DM-Pe981a1c8
+    reason: "same-pattern as allowlisted CredentialEntry/conflict-unresolved silent-noop; new fixture path from ConflictBlocked removal"
+    expires_at: 2026-07-30
+  - matrix_id: DM-Pf585ad9c
+    reason: "TargetSelect/runtime-missing no-progress-edge; same pattern as conflict-unresolved class; runtime-missing provider should not be selectable but is reachable via explorer"
+    expires_at: 2026-07-30

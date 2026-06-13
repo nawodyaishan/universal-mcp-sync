@@ -238,10 +238,103 @@ func decodeJSONObject(data []byte) (map[string]any, error) {
 	}
 
 	root := make(map[string]any)
-	if err := json.Unmarshal(trimmed, &root); err != nil {
+	if err := json.Unmarshal(stripTrailingCommas(stripJSONComments(trimmed)), &root); err != nil {
 		return nil, fmt.Errorf("parse JSON config: %w", err)
 	}
 	return root, nil
+}
+
+// stripTrailingCommas removes trailing commas before } or ] in JSONC input.
+// String literals are preserved intact. Must be called after stripJSONComments
+// so comment-induced whitespace is already gone.
+func stripTrailingCommas(src []byte) []byte {
+	out := make([]byte, 0, len(src))
+	i := 0
+	for i < len(src) {
+		if src[i] == '"' {
+			// String: copy verbatim, respecting backslash escapes.
+			j := i + 1
+			for j < len(src) {
+				if src[j] == '\\' {
+					j += 2
+					continue
+				}
+				if src[j] == '"' {
+					j++
+					break
+				}
+				j++
+			}
+			out = append(out, src[i:j]...)
+			i = j
+			continue
+		}
+		if src[i] == ',' {
+			// Look ahead past whitespace; if next structural char is } or ], drop the comma.
+			j := i + 1
+			for j < len(src) && (src[j] == ' ' || src[j] == '\t' || src[j] == '\r' || src[j] == '\n') {
+				j++
+			}
+			if j < len(src) && (src[j] == '}' || src[j] == ']') {
+				// Trailing comma: emit the whitespace but skip the comma.
+				out = append(out, src[i+1:j]...)
+				i = j
+				continue
+			}
+		}
+		out = append(out, src[i])
+		i++
+	}
+	return out
+}
+
+// stripJSONComments removes // and /* */ comments from JSONC input.
+// String literals are preserved intact so comment-like sequences inside
+// them are not removed. Safe to call on plain JSON (no-op).
+func stripJSONComments(src []byte) []byte {
+	out := make([]byte, 0, len(src))
+	i := 0
+	for i < len(src) {
+		switch {
+		case src[i] == '"':
+			// Consume string literal verbatim, respecting backslash escapes.
+			j := i + 1
+			for j < len(src) {
+				if src[j] == '\\' {
+					j += 2
+					continue
+				}
+				if src[j] == '"' {
+					j++
+					break
+				}
+				j++
+			}
+			out = append(out, src[i:j]...)
+			i = j
+		case i+1 < len(src) && src[i] == '/' && src[i+1] == '/':
+			// Single-line comment: skip to end of line.
+			j := i + 2
+			for j < len(src) && src[j] != '\n' {
+				j++
+			}
+			i = j
+		case i+1 < len(src) && src[i] == '/' && src[i+1] == '*':
+			// Block comment: skip to closing */.
+			j := i + 2
+			for j+1 < len(src) && (src[j] != '*' || src[j+1] != '/') {
+				j++
+			}
+			if j+1 < len(src) {
+				j += 2
+			}
+			i = j
+		default:
+			out = append(out, src[i])
+			i++
+		}
+	}
+	return out
 }
 
 func ensureObject(root map[string]any, key string) map[string]any {

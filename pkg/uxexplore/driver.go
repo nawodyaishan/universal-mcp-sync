@@ -29,7 +29,7 @@ func NewDriver(spec FixtureSpec) (*Driver, error) {
 
 func (d *Driver) Run(ctx context.Context) (*Trace, error) {
 	_ = ctx
-	m := tui.NewDashboardModel(d.scanner, d.manager, BuildProfiles(d.spec))
+	m := tui.NewDashboardModelWithWelcome(d.scanner, d.manager, BuildProfiles(d.spec))
 	if cmd := m.Init(); cmd != nil {
 		next, _ := m.Update(cmd())
 		m = next.(tui.DashboardModel)
@@ -55,12 +55,12 @@ func (d *Driver) Explore(ctx context.Context) (*Trace, error) {
 	return trace, nil
 }
 
-// StartModel constructs the driver's DashboardModel and drains the post-Init
-// command so callers receive the model in the same "post-scan" state the
-// probe uses. Exposed for external replays and seeded exploration.
+// StartModel constructs the driver's DashboardModel and drains any post-Init
+// command so callers receive the same starting state the probe uses. The
+// current product starts at the welcome mode chooser, so Init is usually nil.
 func (d *Driver) StartModel(ctx context.Context) (tui.DashboardModel, error) {
 	_ = ctx
-	m := tui.NewDashboardModel(d.scanner, d.manager, BuildProfiles(d.spec))
+	m := tui.NewDashboardModelWithWelcome(d.scanner, d.manager, BuildProfiles(d.spec))
 	if cmd := m.Init(); cmd != nil {
 		if msg := cmd(); msg != nil {
 			next, _ := m.Update(msg)

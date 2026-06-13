@@ -383,3 +383,116 @@ func TestUpdateNamedServerJSON_PreservesSandboxFields(t *testing.T) {
 		t.Errorf("sandbox content was stripped:\n%s", updated)
 	}
 }
+
+// TestStripJSONComments verifies comment stripping used to handle JSONC files such as Zed's settings.json.
+func TestStripJSONComments(t *testing.T) {
+	cases := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "plain JSON unchanged",
+			input: `{"key": "value"}`,
+			want:  `{"key": "value"}`,
+		},
+		{
+			name:  "single-line comment removed",
+			input: "{\n  // this is a comment\n  \"key\": \"value\"\n}",
+			want:  "{\n  \n  \"key\": \"value\"\n}",
+		},
+		{
+			name:  "block comment removed",
+			input: `{"key": /* comment */ "value"}`,
+			want:  `{"key":  "value"}`,
+		},
+		{
+			name:  "comment inside string preserved",
+			input: `{"url": "https://example.com/mcp?key=abc//def"}`,
+			want:  `{"url": "https://example.com/mcp?key=abc//def"}`,
+		},
+		{
+			name:  "slash-star inside string preserved",
+			input: `{"note": "a /* not a comment */"}`,
+			want:  `{"note": "a /* not a comment */"}`,
+		},
+		{
+			name:  "escaped quote inside string",
+			input: `{"key": "say \"// not a comment\""}`,
+			want:  `{"key": "say \"// not a comment\""}`,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := string(stripJSONComments([]byte(tc.input)))
+			if got != tc.want {
+				t.Errorf("stripJSONComments(%q)\n got  %q\n want %q", tc.input, got, tc.want)
+			}
+		})
+	}
+}
+
+// TestStripTrailingCommas verifies trailing-comma removal for JSONC files.
+func TestStripTrailingCommas(t *testing.T) {
+	cases := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "plain JSON unchanged",
+			input: `{"key": "value"}`,
+			want:  `{"key": "value"}`,
+		},
+		{
+			name:  "trailing comma in object",
+			input: "{\"a\": 1,\n}",
+			want:  "{\"a\": 1\n}",
+		},
+		{
+			name:  "trailing comma in array",
+			input: "[1, 2,\n]",
+			want:  "[1, 2\n]",
+		},
+		{
+			name:  "comma inside string preserved",
+			input: `{"key": "a,}"}`,
+			want:  `{"key": "a,}"}`,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := string(stripTrailingCommas([]byte(tc.input)))
+			if got != tc.want {
+				t.Errorf("stripTrailingCommas(%q)\n got  %q\n want %q", tc.input, got, tc.want)
+			}
+		})
+	}
+}
+
+// TestUpdateNamedServerJSON_ZedJSONCFile verifies that Zed's settings.json with
+// JSONC-style comments (// ...) and trailing commas is parsed and updated without error.
+func TestUpdateNamedServerJSON_ZedJSONCFile(t *testing.T) {
+	data := []byte(`{
+  // Zed settings — this is JSONC, not strict JSON
+  "context_servers": {
+    "other-server": {
+      "url": "https://other.example/mcp",
+    },
+  },
+  /* multi-line comment
+     spanning two lines */
+  "theme": "One Dark",
+}`)
+	cfg := provider.MCPConfig{Type: provider.TransportStreamableHTTP, URL: "https://mcp.exa.ai/mcp?exaApiKey=test"}
+	updated, err := UpdateNamedServerJSON(data, "exa", "context_servers", "url", cfg, nil)
+	if err != nil {
+		t.Fatalf("UpdateNamedServerJSON on JSONC Zed file: %v", err)
+	}
+	if !bytes.Contains(updated, []byte(`"exa"`)) {
+		t.Errorf("exa server not written:\n%s", updated)
+	}
+	if !bytes.Contains(updated, []byte(`mcp.exa.ai`)) {
+		t.Errorf("exa URL not written:\n%s", updated)
+	}
+}

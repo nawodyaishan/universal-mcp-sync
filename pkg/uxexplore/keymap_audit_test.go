@@ -11,7 +11,7 @@ func TestParseHandlerKeys_ExtractsLiteralCases(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseHandlerKeys: %v", err)
 	}
-	for _, screen := range []string{"Doctor", "ProviderReady", "TargetSelect", "ConflictResolve", "CredentialEntry", "PlanPreview", "ApplyResult"} {
+	for _, screen := range []string{"Welcome", "Doctor", "ProviderReady", "TargetSelect", "ConflictResolve", "CredentialEntry", "PlanPreview", "ApplyResult"} {
 		if _, ok := handlers[screen]; !ok {
 			t.Errorf("handler %s missing from AST scan", screen)
 		}
