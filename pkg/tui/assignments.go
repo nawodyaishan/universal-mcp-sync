@@ -59,23 +59,44 @@ func (m assignmentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m assignmentModel) View() string {
 	var builder strings.Builder
 	selectedApps := selectedAppIDs(m.ctx.manager.Apps, m.ctx.selected)
+	builder.WriteString(dashboardHeading("Assign Credentials", "Map credential profiles to each selected target app."))
+
+	if len(selectedApps) == 0 {
+		builder.WriteString(dashboardCallout(toneWarn, "No target apps selected", "Go back to Setup and choose at least one target app."))
+		builder.WriteString(renderKeyHelp("esc back"))
+		return builder.String()
+	}
+
+	profileCount := len(m.ctx.profiles)
+	builder.WriteString(dashboardMetrics(
+		dashboardMetric{Label: "targets", Value: fmt.Sprintf("%d", len(selectedApps)), Tone: toneInfo},
+		dashboardMetric{Label: "profiles", Value: fmt.Sprintf("%d", profileCount), Tone: wizardPositiveTone(profileCount)},
+		dashboardMetric{Label: "provider", Value: wizardProviderName(m.ctx), Tone: toneOK},
+	))
+
+	if profileCount <= 1 {
+		builder.WriteString(dashboardCallout(toneInfo, "Single profile assignment", "All selected target apps will use the same credential profile."))
+	} else {
+		builder.WriteString(dashboardCallout(toneInfo, "Profile routing", "Use left and right to rotate the credential profile for the highlighted target."))
+	}
+
+	builder.WriteString(sectionTitleStyle.Render("Distribute Credentials"))
+	builder.WriteString("\n")
 	for i, appID := range selectedApps {
-		cursor := " "
-		if m.cursor == i {
-			cursor = ">"
-		}
-		fmt.Fprintf(&builder, "%s %s -> %s\n", cursor, config.AppName(appID), assignmentLabel(m.ctx.profiles, m.ctx.assignments[appID]))
+		label := assignmentLabel(m.ctx.profiles, m.ctx.assignments[appID])
+		title := fmt.Sprintf("%s %s", dashboardBadge("TARGET", toneInfo), config.AppName(appID))
+		body := fmt.Sprintf("Credential profile  %s", label)
+		builder.WriteString(dashboardCard(title, body, m.cursor == i))
+		builder.WriteString("\n")
 	}
 	hints := []string{"up/down move"}
 	if len(m.ctx.profiles) > 1 {
 		hints = append(hints, "left/right change")
 	}
 	hints = append(hints, "enter preview", "esc back")
-	return renderSection(
-		"Distribute Credentials",
-		builder.String(),
-		renderKeyHelp(hints...),
-	)
+	builder.WriteString("\n")
+	builder.WriteString(renderKeyHelp(hints...))
+	return builder.String()
 }
 
 func (m *assignmentModel) rotateAssignment(selectedApps []config.AppID, delta int) {

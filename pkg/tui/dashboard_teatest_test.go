@@ -14,13 +14,12 @@ func TestDashboardTeatest(t *testing.T) {
 		Report: doctor.Report{Platform: "test-platform"},
 	}
 
-	model := NewDashboardModel(scanner)
-
+	model := NewDashboardModel(scanner, nil, nil)
 	tm := teatest.NewTestModel(t, model, teatest.WithInitialTermSize(80, 24))
 
 	var capturedOutput string
 
-	// Wait for the scan to finish; capture what the dashboard shows.
+	// Wait for the scan to finish using the shared helper; capture the output.
 	teatest.WaitFor(t, tm.Output(), func(bts []byte) bool {
 		s := string(bts)
 		if strings.Contains(s, "System Status") {
@@ -37,7 +36,6 @@ func TestDashboardTeatest(t *testing.T) {
 		t.Errorf("expected 'No AI clients detected' in output, got %q", capturedOutput)
 	}
 
-	// Send quit key and let the program exit cleanly.
 	tm.Type("q")
 	tm.WaitFinished(t, teatest.WithFinalTimeout(time.Second))
 }
