@@ -60,13 +60,13 @@ Before considering a provider ready:
 ## 8. Architectural Context
 See the technical specifications for deep dives:
 - [Architecture Upgrade Plan](../specs/architecture-upgrade-plan.md)
-- [Context7 Provider Spec](../specs/add-context7-provider.md)
+- [Context7 Provider Spec](../specs/providers/add-context7-provider.md)
 
 ## 9. Spec-Driven Agentic Workflow
 
 When using an AI coding assistant to add a new provider, we follow a strict Spec-Driven Development (SDD) workflow to ensure predictable, verifiable code generation:
 
-1. **Draft the Spec**: Do not prompt the agent to "just build it." First, use the `agentic-sdd-spec` skill to draft a clear, scoped specification document (e.g., `docs/specs/add-<name>-provider.md`) detailing the provider's transport, auth method, credentials, and any per-client adaptations.
+1. **Draft the Spec**: Do not prompt the agent to "just build it." First, use the `agentic-sdd-spec` skill to draft a clear, scoped specification document (e.g., `docs/specs/providers/add-<name>-provider.md`) detailing the provider's transport, auth method, credentials, and any per-client adaptations.
 2. **Review and Approve**: Ensure the specification correctly captures the architectural constraints before any code is generated. You can use the `agentic-sdd-architecture-review` skill to assist. No implementation should occur without an approved spec.
 3. **Invoke the Skill**: Trigger the `.gemini/skills/agentic-sdd-implement` skill, explicitly binding it to your approved spec document:
    ```text
