@@ -18,12 +18,12 @@
     {
       "screen": "ConflictResolve",
       "precondition_class": "conflict-unresolved",
-      "hits": 3
+      "hits": 6
     },
     {
       "screen": "CredentialEntry",
       "precondition_class": "conflict-unresolved",
-      "hits": 6
+      "hits": 42
     },
     {
       "screen": "CredentialEntry",
@@ -53,7 +53,7 @@
     {
       "screen": "Doctor",
       "precondition_class": "runtime-missing",
-      "hits": 1
+      "hits": 2
     },
     {
       "screen": "Doctor",
@@ -63,7 +63,7 @@
     {
       "screen": "PlanPreview",
       "precondition_class": "ok",
-      "hits": 74
+      "hits": 260
     },
     {
       "screen": "PlanPreview",
@@ -73,7 +73,7 @@
     {
       "screen": "ProviderReady",
       "precondition_class": "conflict-unresolved",
-      "hits": 6
+      "hits": 41
     },
     {
       "screen": "ProviderReady",
@@ -93,32 +93,37 @@
     {
       "screen": "ProviderReady",
       "precondition_class": "runtime-missing",
-      "hits": 1
+      "hits": 2
     },
     {
       "screen": "TargetSelect",
       "precondition_class": "conflict-unresolved",
-      "hits": 54
+      "hits": 258
     },
     {
       "screen": "TargetSelect",
       "precondition_class": "no-targets-selected",
-      "hits": 22
+      "hits": 74
     },
     {
       "screen": "TargetSelect",
       "precondition_class": "ok",
-      "hits": 78
+      "hits": 274
     },
     {
       "screen": "TargetSelect",
       "precondition_class": "plan-error",
-      "hits": 8
+      "hits": 28
     },
     {
       "screen": "TargetSelect",
       "precondition_class": "runtime-missing",
-      "hits": 4
+      "hits": 6
+    },
+    {
+      "screen": "Welcome",
+      "precondition_class": "ok",
+      "hits": 56
     }
   ],
   "gaps": null

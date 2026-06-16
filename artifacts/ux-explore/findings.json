@@ -77,57 +77,6 @@
     "matrix_id": "DM-P18bff63e"
   },
   {
-    "kind": "invariant-violation",
-    "fixture": "conflict-no-key",
-    "path": [
-      "ProviderReady",
-      "invariant:I-16",
-      ""
-    ],
-    "state": {
-      "screen": "ProviderReady",
-      "precondition_class": "conflict-unresolved",
-      "block_reason": "conflict unresolved",
-      "has_error": false
-    },
-    "recommendation": "providerCursor=0 does not point at a rendered row",
-    "matrix_id": "DM-P1dcaf324"
-  },
-  {
-    "kind": "invariant-violation",
-    "fixture": "workspace-with-conflict",
-    "path": [
-      "ProviderReady",
-      "invariant:I-16",
-      ""
-    ],
-    "state": {
-      "screen": "ProviderReady",
-      "precondition_class": "conflict-unresolved",
-      "block_reason": "conflict unresolved",
-      "has_error": false
-    },
-    "recommendation": "providerCursor=0 does not point at a rendered row",
-    "matrix_id": "DM-P215f712d"
-  },
-  {
-    "kind": "invariant-violation",
-    "fixture": "credential-and-conflict",
-    "path": [
-      "ProviderReady",
-      "invariant:I-16",
-      ""
-    ],
-    "state": {
-      "screen": "ProviderReady",
-      "precondition_class": "conflict-unresolved",
-      "block_reason": "conflict unresolved",
-      "has_error": false
-    },
-    "recommendation": "providerCursor=0 does not point at a rendered row",
-    "matrix_id": "DM-P24b7be51"
-  },
-  {
     "kind": "silent-noop",
     "fixture": "apply-error-workspace",
     "path": [
@@ -299,21 +248,20 @@
     "matrix_id": "DM-P4dc842b5"
   },
   {
-    "kind": "invariant-violation",
+    "kind": "silent-noop",
     "fixture": "many-conflicts",
     "path": [
-      "ProviderReady",
-      "invariant:I-16",
-      ""
+      "CredentialEntry",
+      "enter"
     ],
     "state": {
-      "screen": "ProviderReady",
+      "screen": "CredentialEntry",
       "precondition_class": "conflict-unresolved",
       "block_reason": "conflict unresolved",
       "has_error": false
     },
-    "recommendation": "providerCursor=0 does not point at a rendered row",
-    "matrix_id": "DM-P517488da"
+    "recommendation": "advertised key \"enter\" does not change state on CredentialEntry",
+    "matrix_id": "DM-P50041362"
   },
   {
     "kind": "silent-noop",
@@ -346,6 +294,23 @@
     },
     "recommendation": "advertised key \"enter\" does not change state on CredentialEntry",
     "matrix_id": "DM-P61eb86ee"
+  },
+  {
+    "kind": "invariant-violation",
+    "fixture": "credential-and-conflict",
+    "path": [
+      "TargetSelect",
+      "invariant:I-17",
+      ""
+    ],
+    "state": {
+      "screen": "TargetSelect",
+      "precondition_class": "conflict-unresolved",
+      "block_reason": "conflict unresolved",
+      "has_error": false
+    },
+    "recommendation": "non-terminal state TargetSelect/conflict-unresolved has no progress edge in action bar",
+    "matrix_id": "DM-P67cf9716"
   },
   {
     "kind": "silent-noop",
@@ -458,6 +423,23 @@
     "matrix_id": "DM-P8ad24c96"
   },
   {
+    "kind": "invariant-violation",
+    "fixture": "runtime-missing-with-conflict",
+    "path": [
+      "TargetSelect",
+      "invariant:I-17",
+      ""
+    ],
+    "state": {
+      "screen": "TargetSelect",
+      "precondition_class": "conflict-unresolved",
+      "block_reason": "conflict unresolved",
+      "has_error": false
+    },
+    "recommendation": "non-terminal state TargetSelect/conflict-unresolved has no progress edge in action bar",
+    "matrix_id": "DM-P8c204b20"
+  },
+  {
     "kind": "silent-noop",
     "fixture": "no-key-no-targets",
     "path": [
@@ -518,6 +500,23 @@
     },
     "recommendation": "advertised key \"v\" does not change state on ProviderReady",
     "matrix_id": "DM-P9802a4b6"
+  },
+  {
+    "kind": "invariant-violation",
+    "fixture": "conflict-no-key",
+    "path": [
+      "TargetSelect",
+      "invariant:I-17",
+      ""
+    ],
+    "state": {
+      "screen": "TargetSelect",
+      "precondition_class": "conflict-unresolved",
+      "block_reason": "conflict unresolved",
+      "has_error": false
+    },
+    "recommendation": "non-terminal state TargetSelect/conflict-unresolved has no progress edge in action bar",
+    "matrix_id": "DM-P98dcce11"
   },
   {
     "kind": "silent-noop",
@@ -598,23 +597,6 @@
     },
     "recommendation": "advertised key \"enter\" does not change state on CredentialEntry",
     "matrix_id": "DM-Pae906d8f"
-  },
-  {
-    "kind": "invariant-violation",
-    "fixture": "runtime-missing-with-conflict",
-    "path": [
-      "ProviderReady",
-      "invariant:I-16",
-      ""
-    ],
-    "state": {
-      "screen": "ProviderReady",
-      "precondition_class": "conflict-unresolved",
-      "block_reason": "conflict unresolved",
-      "has_error": false
-    },
-    "recommendation": "providerCursor=0 does not point at a rendered row",
-    "matrix_id": "DM-Pb2160d0a"
   },
   {
     "kind": "silent-noop",
@@ -744,23 +726,6 @@
     "matrix_id": "DM-Pd83eff83"
   },
   {
-    "kind": "invariant-violation",
-    "fixture": "conflict-then-resolve",
-    "path": [
-      "ProviderReady",
-      "invariant:I-16",
-      ""
-    ],
-    "state": {
-      "screen": "ProviderReady",
-      "precondition_class": "conflict-unresolved",
-      "block_reason": "conflict unresolved",
-      "has_error": false
-    },
-    "recommendation": "providerCursor=0 does not point at a rendered row",
-    "matrix_id": "DM-Pd99a9477"
-  },
-  {
     "kind": "silent-noop",
     "fixture": "preflight-warning",
     "path": [
@@ -842,6 +807,22 @@
   },
   {
     "kind": "silent-noop",
+    "fixture": "conflict-then-resolve",
+    "path": [
+      "CredentialEntry",
+      "enter"
+    ],
+    "state": {
+      "screen": "CredentialEntry",
+      "precondition_class": "conflict-unresolved",
+      "block_reason": "conflict unresolved",
+      "has_error": false
+    },
+    "recommendation": "advertised key \"enter\" does not change state on CredentialEntry",
+    "matrix_id": "DM-Pe47f5ab0"
+  },
+  {
+    "kind": "silent-noop",
     "fixture": "workspace-on",
     "path": [
       "CredentialEntry",
@@ -901,6 +882,39 @@
     },
     "recommendation": "advertised key \"v\" does not change state on ProviderReady",
     "matrix_id": "DM-Pe859ac18"
+  },
+  {
+    "kind": "silent-noop",
+    "fixture": "workspace-with-conflict",
+    "path": [
+      "CredentialEntry",
+      "enter"
+    ],
+    "state": {
+      "screen": "CredentialEntry",
+      "precondition_class": "conflict-unresolved",
+      "block_reason": "conflict unresolved",
+      "has_error": false
+    },
+    "recommendation": "advertised key \"enter\" does not change state on CredentialEntry",
+    "matrix_id": "DM-Pe981a1c8"
+  },
+  {
+    "kind": "invariant-violation",
+    "fixture": "runtime-missing-with-conflict",
+    "path": [
+      "TargetSelect",
+      "invariant:I-17",
+      ""
+    ],
+    "state": {
+      "screen": "TargetSelect",
+      "precondition_class": "runtime-missing",
+      "block_reason": "runtime missing",
+      "has_error": false
+    },
+    "recommendation": "non-terminal state TargetSelect/runtime-missing has no progress edge in action bar",
+    "matrix_id": "DM-Pf585ad9c"
   },
   {
     "kind": "unadvertised-key",

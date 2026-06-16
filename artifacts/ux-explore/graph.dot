@@ -1,5 +1,6 @@
 digraph ux_explore {
   rankdir=LR;
+  "Welcome_ok" [label="Welcome\\nok"];
   "Doctor_ok" [label="Doctor\\nok"];
   "ProviderReady_ok" [label="ProviderReady\\nok"];
   "TargetSelect_ok" [label="TargetSelect\\nok"];
@@ -46,6 +47,8 @@ digraph ux_explore {
   "Doctor_ok" -> "ProviderReady_ok" [label="enter"];
   "Doctor_ok" -> "ProviderReady_ok" [label="p"];
   "Doctor_runtime-missing" -> "Doctor_runtime-missing" [label="r"];
+  "Doctor_runtime-missing" -> "ProviderReady_conflict-unresolved" [label="enter"];
+  "Doctor_runtime-missing" -> "ProviderReady_conflict-unresolved" [label="p"];
   "Doctor_runtime-missing" -> "ProviderReady_ok" [label="enter"];
   "Doctor_runtime-missing" -> "ProviderReady_ok" [label="p"];
   "PlanPreview_ok" -> "ApplyResult_apply-error" [label="enter"];
@@ -59,6 +62,9 @@ digraph ux_explore {
   "PlanPreview_runtime-missing" -> "TargetSelect_runtime-missing" [label="esc"];
   "PlanPreview_runtime-missing" -> "TargetSelect_runtime-missing" [label="n"];
   "ProviderReady_conflict-unresolved" -> "Doctor_conflict-unresolved" [label="esc"];
+  "ProviderReady_conflict-unresolved" -> "ProviderReady_conflict-unresolved" [label="down"];
+  "ProviderReady_conflict-unresolved" -> "ProviderReady_conflict-unresolved" [label="up"];
+  "ProviderReady_conflict-unresolved" -> "ProviderReady_runtime-missing" [label="down"];
   "ProviderReady_conflict-unresolved" -> "TargetSelect_conflict-unresolved" [label="enter"];
   "ProviderReady_conflict-unresolved" -> "TargetSelect_conflict-unresolved" [label="r"];
   "ProviderReady_missing-credentials" -> "CredentialEntry_missing-credentials" [label="k"];
@@ -86,10 +92,12 @@ digraph ux_explore {
   "ProviderReady_ok" -> "ProviderReady_runtime-missing" [label="down"];
   "ProviderReady_ok" -> "TargetSelect_ok" [label="enter"];
   "ProviderReady_runtime-missing" -> "Doctor_runtime-missing" [label="esc"];
+  "ProviderReady_runtime-missing" -> "ProviderReady_conflict-unresolved" [label="up"];
   "ProviderReady_runtime-missing" -> "ProviderReady_ok" [label="up"];
   "ProviderReady_runtime-missing" -> "ProviderReady_runtime-missing" [label="down"];
   "ProviderReady_runtime-missing" -> "ProviderReady_runtime-missing" [label="v"];
   "ProviderReady_runtime-missing" -> "TargetSelect_runtime-missing" [label="enter"];
+  "ProviderReady_runtime-missing" -> "TargetSelect_runtime-missing" [label="r"];
   "TargetSelect_conflict-unresolved" -> "ConflictResolve_conflict-unresolved" [label="r"];
   "TargetSelect_conflict-unresolved" -> "CredentialEntry_conflict-unresolved" [label="k"];
   "TargetSelect_conflict-unresolved" -> "ProviderReady_conflict-unresolved" [label="esc"];
@@ -122,4 +130,14 @@ digraph ux_explore {
   "TargetSelect_runtime-missing" -> "TargetSelect_runtime-missing" [label="down"];
   "TargetSelect_runtime-missing" -> "TargetSelect_runtime-missing" [label="i"];
   "TargetSelect_runtime-missing" -> "TargetSelect_runtime-missing" [label="up"];
+  "Welcome_ok" -> "Doctor_conflict-unresolved" [label="d"];
+  "Welcome_ok" -> "Doctor_conflict-unresolved" [label="enter"];
+  "Welcome_ok" -> "Doctor_missing-credentials" [label="d"];
+  "Welcome_ok" -> "Doctor_missing-credentials" [label="enter"];
+  "Welcome_ok" -> "Doctor_ok" [label="d"];
+  "Welcome_ok" -> "Doctor_ok" [label="enter"];
+  "Welcome_ok" -> "Doctor_scan-error" [label="d"];
+  "Welcome_ok" -> "Doctor_scan-error" [label="enter"];
+  "Welcome_ok" -> "Welcome_ok" [label="down"];
+  "Welcome_ok" -> "Welcome_ok" [label="up"];
 }

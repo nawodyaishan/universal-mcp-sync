@@ -42,30 +42,6 @@ Stubs emitted from `make ux-explore`. Fill in `Expected` and paste into the acti
 - Expected: _(human-filled)_
 - Invariants: I-01, I-02
 
-## DM-P1dcaf324 — invariant-violation
-
-- Fixture: `conflict-no-key`
-- Preconditions: `ProviderReady/conflict-unresolved` (block reason: conflict unresolved)
-- Actual: providerCursor=0 does not point at a rendered row
-- Expected: _(human-filled)_
-- Invariants: I-01
-
-## DM-P215f712d — invariant-violation
-
-- Fixture: `workspace-with-conflict`
-- Preconditions: `ProviderReady/conflict-unresolved` (block reason: conflict unresolved)
-- Actual: providerCursor=0 does not point at a rendered row
-- Expected: _(human-filled)_
-- Invariants: I-01
-
-## DM-P24b7be51 — invariant-violation
-
-- Fixture: `credential-and-conflict`
-- Preconditions: `ProviderReady/conflict-unresolved` (block reason: conflict unresolved)
-- Actual: providerCursor=0 does not point at a rendered row
-- Expected: _(human-filled)_
-- Invariants: I-01
-
 ## DM-P2dde2986 — silent-noop
 
 - Fixture: `apply-error-workspace`
@@ -154,13 +130,13 @@ Stubs emitted from `make ux-explore`. Fill in `Expected` and paste into the acti
 - Expected: _(human-filled)_
 - Invariants: I-01, I-02
 
-## DM-P517488da — invariant-violation
+## DM-P50041362 — silent-noop
 
 - Fixture: `many-conflicts`
-- Preconditions: `ProviderReady/conflict-unresolved` (block reason: conflict unresolved)
-- Actual: providerCursor=0 does not point at a rendered row
+- Preconditions: `CredentialEntry/conflict-unresolved` (block reason: conflict unresolved)
+- Actual: advertised key "enter" does not change state on CredentialEntry
 - Expected: _(human-filled)_
-- Invariants: I-01
+- Invariants: I-01, I-02
 
 ## DM-P5f281a6c — silent-noop
 
@@ -177,6 +153,14 @@ Stubs emitted from `make ux-explore`. Fill in `Expected` and paste into the acti
 - Actual: advertised key "enter" does not change state on CredentialEntry
 - Expected: _(human-filled)_
 - Invariants: I-01, I-02
+
+## DM-P67cf9716 — invariant-violation
+
+- Fixture: `credential-and-conflict`
+- Preconditions: `TargetSelect/conflict-unresolved` (block reason: conflict unresolved)
+- Actual: non-terminal state TargetSelect/conflict-unresolved has no progress edge in action bar
+- Expected: _(human-filled)_
+- Invariants: I-01
 
 ## DM-P6a581865 — silent-noop
 
@@ -234,6 +218,14 @@ Stubs emitted from `make ux-explore`. Fill in `Expected` and paste into the acti
 - Expected: _(human-filled)_
 - Invariants: I-01, I-02
 
+## DM-P8c204b20 — invariant-violation
+
+- Fixture: `runtime-missing-with-conflict`
+- Preconditions: `TargetSelect/conflict-unresolved` (block reason: conflict unresolved)
+- Actual: non-terminal state TargetSelect/conflict-unresolved has no progress edge in action bar
+- Expected: _(human-filled)_
+- Invariants: I-01
+
 ## DM-P8ca3d303 — silent-noop
 
 - Fixture: `no-key-no-targets`
@@ -265,6 +257,14 @@ Stubs emitted from `make ux-explore`. Fill in `Expected` and paste into the acti
 - Actual: advertised key "v" does not change state on ProviderReady
 - Expected: _(human-filled)_
 - Invariants: I-01, I-02
+
+## DM-P98dcce11 — invariant-violation
+
+- Fixture: `conflict-no-key`
+- Preconditions: `TargetSelect/conflict-unresolved` (block reason: conflict unresolved)
+- Actual: non-terminal state TargetSelect/conflict-unresolved has no progress edge in action bar
+- Expected: _(human-filled)_
+- Invariants: I-01
 
 ## DM-P9ef2f421 — silent-noop
 
@@ -305,14 +305,6 @@ Stubs emitted from `make ux-explore`. Fill in `Expected` and paste into the acti
 - Actual: advertised key "enter" does not change state on CredentialEntry
 - Expected: _(human-filled)_
 - Invariants: I-01, I-02
-
-## DM-Pb2160d0a — invariant-violation
-
-- Fixture: `runtime-missing-with-conflict`
-- Preconditions: `ProviderReady/conflict-unresolved` (block reason: conflict unresolved)
-- Actual: providerCursor=0 does not point at a rendered row
-- Expected: _(human-filled)_
-- Invariants: I-01
 
 ## DM-Pb28b4844 — silent-noop
 
@@ -378,14 +370,6 @@ Stubs emitted from `make ux-explore`. Fill in `Expected` and paste into the acti
 - Expected: _(human-filled)_
 - Invariants: I-01, I-02
 
-## DM-Pd99a9477 — invariant-violation
-
-- Fixture: `conflict-then-resolve`
-- Preconditions: `ProviderReady/conflict-unresolved` (block reason: conflict unresolved)
-- Actual: providerCursor=0 does not point at a rendered row
-- Expected: _(human-filled)_
-- Invariants: I-01
-
 ## DM-Pd9dd6759 — silent-noop
 
 - Fixture: `preflight-warning`
@@ -426,6 +410,14 @@ Stubs emitted from `make ux-explore`. Fill in `Expected` and paste into the acti
 - Expected: _(human-filled)_
 - Invariants: I-01, I-02
 
+## DM-Pe47f5ab0 — silent-noop
+
+- Fixture: `conflict-then-resolve`
+- Preconditions: `CredentialEntry/conflict-unresolved` (block reason: conflict unresolved)
+- Actual: advertised key "enter" does not change state on CredentialEntry
+- Expected: _(human-filled)_
+- Invariants: I-01, I-02
+
 ## DM-Pe4bf14b6 — silent-noop
 
 - Fixture: `workspace-on`
@@ -457,6 +449,22 @@ Stubs emitted from `make ux-explore`. Fill in `Expected` and paste into the acti
 - Actual: advertised key "v" does not change state on ProviderReady
 - Expected: _(human-filled)_
 - Invariants: I-01, I-02
+
+## DM-Pe981a1c8 — silent-noop
+
+- Fixture: `workspace-with-conflict`
+- Preconditions: `CredentialEntry/conflict-unresolved` (block reason: conflict unresolved)
+- Actual: advertised key "enter" does not change state on CredentialEntry
+- Expected: _(human-filled)_
+- Invariants: I-01, I-02
+
+## DM-Pf585ad9c — invariant-violation
+
+- Fixture: `runtime-missing-with-conflict`
+- Preconditions: `TargetSelect/runtime-missing` (block reason: runtime missing)
+- Actual: non-terminal state TargetSelect/runtime-missing has no progress edge in action bar
+- Expected: _(human-filled)_
+- Invariants: I-01
 
 ## DM-Pa98a32b9 — unadvertised-key
 
