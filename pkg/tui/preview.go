@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/nawodyaishan/universal-mcp-sync/pkg/app"
 	"github.com/nawodyaishan/universal-mcp-sync/pkg/provider"
+	"github.com/nawodyaishan/universal-mcp-sync/pkg/redact"
 )
 
 type previewModel struct {
@@ -75,17 +76,14 @@ func (m previewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m previewModel) View() string {
 	if m.applying {
-		return renderSection(
-			"Applying",
-			m.spinner.View()+" Applying configuration…",
-			renderKeyHelp("ctrl+c quit"),
-		)
+		var builder strings.Builder
+		builder.WriteString(dashboardHeading("Applying", "Writing local config changes and verifying the result."))
+		builder.WriteString(dashboardCallout(toneInfo, "In progress", m.spinner.View()+" Applying configuration…"))
+		builder.WriteString(renderKeyHelp("ctrl+c quit"))
+		return builder.String()
 	}
-	return renderSection(
-		"Preview",
-		renderPreviewPlan(m.ctx.plan, m.ctx.manager.HomeDir),
-		renderKeyHelp("enter apply", "esc back", "? help", "ctrl+c quit"),
-	)
+	return renderPreviewPlan(m.ctx.plan, m.ctx.manager.HomeDir) + "\n\n" +
+		renderKeyHelp("enter apply", "esc back", "? help", "ctrl+c quit")
 }
 
 func signalNext() tea.Msg { return nextMsg{} }
@@ -95,74 +93,97 @@ type nextMsg struct{}
 type backMsg struct{}
 
 func renderPreviewPlan(plan app.ExecutionPlan, homeDir string) string {
+	var builder strings.Builder
+	builder.WriteString(dashboardHeading("Preview Plan", "Review the exact target operations before anything is written."))
+
 	if len(plan.Operations) == 0 {
-		return mutedStyle.Render("No targets selected.")
+		builder.WriteString(dashboardCallout(toneWarn, "No targets selected", "Go back to Setup and choose at least one target app."))
+		return strings.TrimSpace(builder.String())
 	}
 
-	var builder strings.Builder
 	targetLabel := "targets"
 	if len(plan.Operations) == 1 {
 		targetLabel = "target"
 	}
 
 	first := plan.Operations[0]
-	builder.WriteString(accentStyle.Render("Ready to apply MCP configuration"))
-	builder.WriteString("\n\n")
-	fmt.Fprintf(&builder, "Targets   %d %s\n", len(plan.Operations), targetLabel)
-	fmt.Fprintf(&builder, "Provider  %s\n", first.ProviderID)
-	fmt.Fprintf(&builder, "Mode      %s transport\n", first.Config.Type)
-	builder.WriteString("Safety    backups before file writes; credentials stay redacted\n")
+	builder.WriteString(dashboardCallout(toneOK, "Ready to apply MCP configuration", "Backups are created before file writes.", "Credentials stay redacted in the preview."))
+	builder.WriteString(dashboardMetrics(
+		dashboardMetric{Label: "Targets", Value: fmt.Sprintf("%d %s", len(plan.Operations), targetLabel), Tone: toneInfo},
+		dashboardMetric{Label: "Provider", Value: first.ProviderID, Tone: toneOK},
+		dashboardMetric{Label: "Mode", Value: string(first.Config.Type), Tone: toneNeutral},
+	))
 
 	if len(plan.Warnings) > 0 {
-		builder.WriteString("\n")
 		builder.WriteString(sectionTitleStyle.Render("Warnings"))
 		builder.WriteString("\n")
 		for _, warning := range plan.Warnings {
-			fmt.Fprintf(&builder, "- %s\n", warning)
+			fmt.Fprintf(&builder, "  %s %s\n", dashboardBadge("WARN", toneWarn), redact.Text(warning))
 		}
+		builder.WriteString("\n")
 	}
 
-	builder.WriteString("\n")
 	builder.WriteString(sectionTitleStyle.Render("Targets"))
 	builder.WriteString("\n")
 	for index, op := range plan.Operations {
-		fmt.Fprintf(&builder, "\n%s %s\n", accentStyle.Render(fmt.Sprintf("%d.", index+1)), op.AppName)
-		fmt.Fprintf(&builder, "   Config   %s\n", op.FileLabel)
-
-		if op.Config.Type == provider.TransportStdio {
-			fmt.Fprintf(&builder, "   Transport stdio (%s %s)\n",
-				op.Config.Command, strings.Join(op.Config.Args, " "))
-		} else {
-			fmt.Fprintf(&builder, "   Transport %s\n", op.Config.Type)
-		}
-
-		fmt.Fprintf(&builder, "   Key      %s\n", op.CredentialLabel)
-
-		if op.SkipReason != "" {
-			builder.WriteString("   Status   skipped\n")
-			fmt.Fprintf(&builder, "   Reason   %s\n", op.SkipReason)
-			continue
-		}
-
-		if op.Path == "" {
-			fmt.Fprintf(&builder, "   Action   update through %s command\n", op.AppName)
-			continue
-		}
-
-		action := "update existing file"
-		if op.WillCreate {
-			action = "create new file"
-		}
-		fmt.Fprintf(&builder, "   Action   %s\n", action)
-		fmt.Fprintf(&builder, "   Path     %s\n", shortenHomePath(op.Path, homeDir))
-		if op.WillCreate {
-			builder.WriteString("   Backup   not needed for new file\n")
-		} else if op.BackupPath != "" {
-			fmt.Fprintf(&builder, "   Backup   %s\n", shortenHomePath(op.BackupPath, homeDir))
-		}
+		builder.WriteString(renderPreviewOperation(index, op, homeDir))
+		builder.WriteString("\n")
 	}
 
 	return strings.TrimSpace(builder.String())
+}
+
+func renderPreviewOperation(index int, op app.Operation, homeDir string) string {
+	status := dashboardBadge("UPDATE", toneInfo)
+	if op.SkipReason != "" {
+		status = dashboardBadge("SKIP", toneNeutral)
+	} else if op.WillCreate {
+		status = dashboardBadge("CREATE", toneOK)
+	} else if op.Path == "" {
+		status = dashboardBadge("COMMAND", toneInfo)
+	}
+
+	var body strings.Builder
+	fmt.Fprintf(&body, "Config     %s\n", op.FileLabel)
+	fmt.Fprintf(&body, "Transport  %s\n", previewTransportLabel(op.Config))
+	fmt.Fprintf(&body, "Key        %s\n", op.CredentialLabel)
+
+	if op.SkipReason != "" {
+		fmt.Fprintf(&body, "Reason     %s", redact.Text(op.SkipReason))
+		return dashboardCard(fmt.Sprintf("%s %d. %s", status, index+1, op.AppName), strings.TrimRight(body.String(), "\n"), false)
+	}
+
+	if op.Path == "" {
+		fmt.Fprintf(&body, "Action     update through %s command", op.AppName)
+		return dashboardCard(fmt.Sprintf("%s %d. %s", status, index+1, op.AppName), strings.TrimRight(body.String(), "\n"), false)
+	}
+
+	action := "update existing file"
+	if op.WillCreate {
+		action = "create new file"
+	}
+	fmt.Fprintf(&body, "Action     %s\n", action)
+	fmt.Fprintf(&body, "Path       %s\n", shortenHomePath(op.Path, homeDir))
+	if op.WillCreate {
+		body.WriteString("Backup     not needed for new file")
+	} else if op.BackupPath != "" {
+		fmt.Fprintf(&body, "Backup     %s", shortenHomePath(op.BackupPath, homeDir))
+	}
+	if op.GitWarning {
+		body.WriteString("\n")
+		body.WriteString("Warning    target path may be shared through source control")
+	}
+	return dashboardCard(fmt.Sprintf("%s %d. %s", status, index+1, op.AppName), strings.TrimRight(body.String(), "\n"), false)
+}
+
+func previewTransportLabel(cfg provider.MCPConfig) string {
+	if cfg.Type == provider.TransportStdio {
+		if cfg.Command == "" {
+			return "stdio command"
+		}
+		return fmt.Sprintf("stdio command %s", cfg.Command)
+	}
+	return string(cfg.Type)
 }
 
 func shortenHomePath(path, homeDir string) string {

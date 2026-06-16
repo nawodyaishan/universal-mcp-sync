@@ -59,12 +59,6 @@ var (
 	errorStyle = lipgloss.NewStyle().
 			Foreground(colorError).
 			Bold(true)
-	successStyle = lipgloss.NewStyle().
-			Foreground(colorAccent).
-			Bold(true)
-	warningStyle = lipgloss.NewStyle().
-			Foreground(colorWarning).
-			Bold(true)
 	dimStyle = lipgloss.NewStyle().
 			Foreground(colorDim)
 )
@@ -184,5 +178,138 @@ func renderHelpOverlay() string {
 
 	return panelStyle.Render(
 		sectionTitleStyle.Render("Keyboard Shortcuts") + "\n\n" + strings.TrimRight(sb.String(), "\n"),
+	)
+}
+
+func renderDashboardHelpOverlay(screen dashboardScreen) string {
+	title := "Help - System Status"
+	var rows [][2]string
+
+	switch screen {
+	case screenWelcome:
+		title = "Help - Welcome"
+		rows = [][2]string{
+			{"Actions", ""},
+			{"↑", "choose the previous mode"},
+			{"↓", "choose the next mode"},
+			{"enter", "start the selected mode"},
+			{"d", "start doctor mode"},
+			{"w", "start wizard mode"},
+			{"", ""},
+			{"Global", ""},
+			{"?", "close help"},
+			{"q / ctrl+c", "quit"},
+		}
+	case screenProviderReady:
+		title = "Help - Provider Readiness"
+		rows = [][2]string{
+			{"Navigation", ""},
+			{"↑ / k", "move up"},
+			{"↓ / j", "move down"},
+			{"enter", "select and validate provider"},
+			{"v", "run live validation"},
+			{"r", "resolve conflicts when shown"},
+			{"esc", "back to system status"},
+			{"", ""},
+			{"Global", ""},
+			{"?", "close help"},
+			{"q / ctrl+c", "quit"},
+		}
+	case screenTargetSelect:
+		title = "Help - Select Targets"
+		rows = [][2]string{
+			{"Navigation", ""},
+			{"↑ / k", "move up"},
+			{"↓ / j", "move down"},
+			{"space", "toggle selected target"},
+			{"i", "toggle workspace targets"},
+			{"enter", "build plan"},
+			{"r", "open conflict resolution"},
+			{"esc", "back to provider readiness"},
+			{"", ""},
+			{"Global", ""},
+			{"?", "close help"},
+			{"q / ctrl+c", "quit"},
+		}
+	case screenCredentialEntry:
+		title = "Help - Add Credentials"
+		rows = [][2]string{
+			{"Actions", ""},
+			{"enter", "submit credentials"},
+			{"tab", "next field"},
+			{"shift+tab", "previous field"},
+			{"backspace", "delete last character"},
+			{"esc", "cancel and go back"},
+			{"", ""},
+			{"Global", ""},
+			{"?", "close help"},
+			{"q / ctrl+c", "quit"},
+		}
+	case screenConflictResolve:
+		title = "Help - Resolve Conflict"
+		rows = [][2]string{
+			{"Actions", ""},
+			{"1", "choose the first candidate"},
+			{"2", "choose the second candidate"},
+			{"s", "skip this client"},
+			{"esc", "cancel and go back"},
+			{"", ""},
+			{"Global", ""},
+			{"?", "close help"},
+			{"q / ctrl+c", "quit"},
+		}
+	case screenPlanPreview:
+		title = "Help - Plan Preview"
+		rows = [][2]string{
+			{"Actions", ""},
+			{"y / enter", "apply the plan"},
+			{"n / esc", "back to target selection"},
+			{"", ""},
+			{"Global", ""},
+			{"?", "close help"},
+			{"q / ctrl+c", "quit"},
+		}
+	case screenApplyResult:
+		title = "Help - Apply Result"
+		rows = [][2]string{
+			{"Actions", ""},
+			{"r", "rescan after the result"},
+			{"", ""},
+			{"Global", ""},
+			{"?", "close help"},
+			{"q / ctrl+c", "quit"},
+		}
+	default:
+		rows = [][2]string{
+			{"Actions", ""},
+			{"p / enter", "open provider readiness"},
+			{"r", "rescan clients and runtimes"},
+			{"w", "route to the wizard"},
+			{"", ""},
+			{"Global", ""},
+			{"?", "close help"},
+			{"q / ctrl+c", "quit"},
+		}
+	}
+
+	keyCol := lipgloss.NewStyle().Foreground(colorAccent).Bold(true).Width(16)
+	descCol := lipgloss.NewStyle().Foreground(colorMuted)
+	headCol := lipgloss.NewStyle().Foreground(colorSection).Bold(true)
+
+	var sb strings.Builder
+	for _, row := range rows {
+		if row[1] == "" {
+			if row[0] == "" {
+				sb.WriteString("\n")
+			} else {
+				sb.WriteString(headCol.Render(row[0]) + "\n")
+			}
+			continue
+		}
+		sb.WriteString(keyCol.Render(row[0]) + descCol.Render(row[1]) + "\n")
+	}
+
+	return panelStyle.Render(
+		sectionTitleStyle.Render(title) + "\n\n" + strings.TrimRight(sb.String(), "\n"),
 	)
 }

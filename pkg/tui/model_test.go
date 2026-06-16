@@ -2,6 +2,7 @@ package tui
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -50,6 +51,18 @@ func TestModel(t *testing.T) {
 	// Err
 	if m2.(Model).Err() != nil {
 		t.Errorf("expected nil error")
+	}
+}
+
+func TestWizardViewUsesModernShell(t *testing.T) {
+	manager, _ := app.NewManager("/tmp/test", nil, nil)
+	m := NewModel(manager, nil, "")
+
+	view := m.View()
+	for _, want := range []string{"Wizard Mode", "guided setup", "Setup", "providers", "target apps"} {
+		if !strings.Contains(view, want) {
+			t.Fatalf("expected wizard view to contain %q\n\n%s", want, view)
+		}
 	}
 }
 
@@ -183,6 +196,33 @@ func TestPreviewModel_SpinnerTickIgnoredWhenNotApplying(t *testing.T) {
 	_, cmd := pm.Update(tick)
 	if cmd != nil {
 		t.Error("spinner tick should be ignored when not applying")
+	}
+}
+
+func TestRenderPreviewPlanDoesNotExposeStdioArgs(t *testing.T) {
+	plan := app.ExecutionPlan{
+		Operations: []app.Operation{
+			{
+				AppName:         "Example App",
+				FileLabel:       "global config",
+				Path:            "/tmp/test/config.json",
+				CredentialLabel: "redacted-key",
+				ProviderID:      "example",
+				Config: provider.MCPConfig{
+					Type:    provider.TransportStdio,
+					Command: "mcp-server",
+					Args:    []string{"--api-key", "super-secret-token"},
+				},
+			},
+		},
+	}
+
+	view := renderPreviewPlan(plan, "/tmp/test")
+	if strings.Contains(view, "super-secret-token") || strings.Contains(view, "--api-key") {
+		t.Fatalf("preview must not expose stdio args containing secrets\n\n%s", view)
+	}
+	if !strings.Contains(view, "stdio command mcp-server") {
+		t.Fatalf("expected preview to keep the stdio command context\n\n%s", view)
 	}
 }
 
