@@ -107,17 +107,15 @@ func verifyContext7BareMCPServersFile(path string, cfg provider.MCPConfig) Resul
 }
 
 func verifyContext7NamedServerFile(path string, cfg provider.MCPConfig) Result {
-	if cfg.Type == provider.TransportStdio {
-		server, err := readRootServerEntry(path, "context7")
-		if err != nil {
-			return failure(path, err.Error())
-		}
-		details, ok := inspectStdioServer(server)
-		return resultFrom(path, details, ok)
-	}
-	server, err := readRootServerEntry(path, "context7")
+	// Use readServerEntryByKind so files with a root key (Zed: context_servers,
+	// VS Code: servers) are handled alongside bare root-level entries.
+	server, err := readServerEntryByKind(path, config.FileKindNamedServer, "context7")
 	if err != nil {
 		return failure(path, err.Error())
+	}
+	if cfg.Type == provider.TransportStdio {
+		details, ok := inspectStdioServer(server)
+		return resultFrom(path, details, ok)
 	}
 	return inspectContext7Server(path, server)
 }

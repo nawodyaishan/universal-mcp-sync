@@ -330,3 +330,28 @@ func TestVerifyProviderFile_ZedContextServers(t *testing.T) {
 		t.Errorf("expected OK or warning for Zed context_servers layout, got %s: %v", result.Status, result.Details)
 	}
 }
+
+// TestVerifyProviderFile_Context7ZedContextServers is a regression test for the bug where
+// verifyContext7NamedServerFile used readRootServerEntry and failed on Zed's settings.json
+// where the entry lives under root["context_servers"]["context7"].
+func TestVerifyProviderFile_Context7ZedContextServers(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "settings.json")
+	content := `{
+  "context_servers": {
+    "context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {"CONTEXT7_API_KEY": "ctx7sk-testkey"}
+    }
+  }
+}`
+	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+		t.Fatalf("write test file: %v", err)
+	}
+
+	cfg := provider.MCPConfig{Type: provider.TransportStreamableHTTP, URL: "https://mcp.context7.com/mcp"}
+	result := VerifyProviderFile(path, config.FileKindNamedServer, "context7", cfg)
+	if result.Status == StatusFailed {
+		t.Errorf("expected OK or warning for Zed context_servers layout, got %s: %v", result.Status, result.Details)
+	}
+}
