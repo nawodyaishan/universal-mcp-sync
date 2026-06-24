@@ -1,50 +1,32 @@
-Script started on 2026-05-23 17:15:06+00:00 [COMMAND="usync --home-dir '/tmp/usync-fake-prod/home'" <not executed on terminal>]
+Script started on 2026-06-24 16:13:45+00:00 [COMMAND="usync --home-dir '/tmp/usync-fake-prod/home'" <not executed on terminal>]
 ]11;?\[6n[?25l[?1049h[2J[H[?25l[?2004h[H│                                                                                  
-│  [<>] MCP Config  @nawodyaishan  /  local config sync                            
-│   1 Setup  ->  2 Assign  ->  3 Preview  ->  4 Results                            
+│  [mcp] Doctor Mode  /  scan, choose, apply                                       
+│   1 Start  ->  2 Scan  ->  3 Provider  ->  4 Targets  ->  5 Apply                
 │                                                                                  
-│  Scanning for AI clients and runtimes...                                         
+│  Welcome                                                                         
+│  Choose how you want to work with MCP configuration.                             
 │                                                                                  
-│  [p] providers  [r] rescan  [w] wizard  [?] help  [q] quit                       
-│                                                                                  [8;H[H
-
-
-
-│  System Status                                                                   
-
-│  Runtimes:                                                                       
-│    - Node.js: OK                                                                 
-│    - npx: OK                                                                     
-│    - Docker: OK                                                                  
-│    - Claude CLI: OK                                                              
-│    - Codex CLI: OK                                                               
-│    - Antigravity CLI: OK                                                         
+│  >                                                                               
+│  ╭─────────────────────────────────────────────────────────────────────────────  
+│  ────────────────────────────────────╮                                           
+│    │ Doctor Mode                                                                 
+│  │                                                                               
+│    │ Scan installed AI clients, detect MCP config paths, surface conflicts,      
+│  then guide provider selection and apply. │                                      
 │                                                                                  
-│  AI Clients Detected (12):                                                       
-│    * Antigravity IDE [conflict]                                                  
-│      Providers: exa                                                              
-│      ! Issue: mult...xist                                                        
-│      ! Warning: ~/.g...ces.                                                      
-│    * Antigravity CLI [high]                                                      
-│      Config: /tmp...json                                                         
-│      Providers: context7, exa                                                    
-│    * Claude Code [high]                                                          
-│      Config: /tmp...json                                                         
-│      Providers: playwright                                                       
-│    * Claude Desktop [not installed]                                              
-│    * Codex CLI [medium]                                                          
-│    * Cursor [high]                                                               
-│      Config: /tmp...json                                                         
-│      Providers: playwright                                                       
-│    * Kiro [not installed]                                                        
-│    * OpenCode [not installed]                                                    
-│    * Roo Code [not installed]                                                    
-│    * VS Code [high]                                                              
-│      Config: /tmp...json                                                         
-│      Providers: playwright                                                       
-│    * Windsurf [not installed]                                                    
-│    * Zed [not installed]                                                         
+│  ╰─────────────────────────────────────────────────────────────────────────────  
+│  ────────────────────────────────────╯                                           
 │                                                                                  
-│  [p] providers  [r] rescan  [w] wizard  [?] help  [q] quit                       
-│                                                                                  [41;H
-Script done on 2026-05-23 17:15:16+00:00 [COMMAND_EXIT_CODE="0"]
+│  ╭─────────────────────────────────────────────────────────────────────────────  
+│  ─────────────────────────────╮                                                  
+│    │ Wizard Mode                                                                 
+│  │                                                                               
+│    │ Use the legacy step-by-step setup flow when you already know the provider,  
+│  target apps, and credentials. │                                                 
+│                                                                                  
+│  ╰─────────────────────────────────────────────────────────────────────────────  
+│  ─────────────────────────────╯                                                  
+│                                                                                  
+│  [↑↓] choose  [Enter] start  [d] doctor  [w] wizard  [?] help  [q] quit          
+│                                                                                  [30;H
+Script done on 2026-06-24 16:13:55+00:00 [COMMAND_EXIT_CODE="0"]

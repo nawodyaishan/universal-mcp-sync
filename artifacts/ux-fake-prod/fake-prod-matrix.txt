@@ -1,6 +1,47 @@
 === RUN   TestDashboardFakeProdMatrix_MissingCredentialsBlocksBeforePlan
 --- PASS: TestDashboardFakeProdMatrix_MissingCredentialsBlocksBeforePlan (0.00s)
 === RUN   TestDashboardFakeProdMatrix_BatchSkipOnIdentical
---- PASS: TestDashboardFakeProdMatrix_BatchSkipOnIdentical (0.00s)
-PASS
-ok  	github.com/nawodyaishan/universal-mcp-sync/pkg/tui	0.012s
+    dashboard_fake_prod_matrix_test.go:111: DM-P57/docker: expected target select after provider step, got screen 2
+        
+        │                                                                                  
+        │  [mcp] Doctor Mode  /  scan, choose, apply                                       
+        │   ✓ Start  ->  ✓ Scan  ->  3 Provider  ->  4 Targets  ->  5 Apply                
+        │                                                                                  
+        │  Provider Readiness                                                              
+        │  Choose the MCP server profile to install.                                       
+        │                                                                                  
+        │   Conflicts detected                                                             
+        │    Resolve these before planning:                                                
+        │    Antigravity IDE                                                               
+        │    VS Code                                                                       
+        │    Press [r] to go to conflict resolution.                                       
+        │                                                                                  
+        │   Validating...                                                                  
+        │    Running offline checks for the selected provider.                             
+        │                                                                                  
+        │  providers  7    ready  2    attention  5                                        
+        │                                                                                  
+        │  >  no-key-needed  Playwright                                                    
+        │     no-key-needed  Kubernetes                                                    
+        │     missing-credentials  Exa AI Search                                           
+        │        get key: https://dashboard.exa.ai/api-keys                                
+        │        press [k] or [Enter] to add your API key                                  
+        │     missing-credentials  GitHub                                                  
+        │        get key: https://github.com/settings/tokens                               
+        │        press [k] or [Enter] to add your API key                                  
+        │     missing-credentials  Context7                                                
+        │        get key: https://context7.com/dashboard                                   
+        │        press [k] or [Enter] to add your API key                                  
+        │     missing-credentials  Tavily Search                                           
+        │        get key: https://app.tavily.com/home                                      
+        │        press [k] or [Enter] to add your API key                                  
+        │     missing-credentials  Terraform                                               
+        │        get key: https://app.terraform.io/app/settings/tokens                     
+        │        press [k] or [Enter] to add your API key                                  
+        │                                                                                  
+        │  [r] resolve conflicts  [↑↓] navigate  [Esc] back  [q] quit                      
+        │                                                                                  
+--- FAIL: TestDashboardFakeProdMatrix_BatchSkipOnIdentical (0.00s)
+FAIL
+FAIL	github.com/nawodyaishan/universal-mcp-sync/pkg/tui	0.011s
+FAIL

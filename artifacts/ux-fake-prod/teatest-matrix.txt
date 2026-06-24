@@ -3,6 +3,8 @@ go: downloading github.com/charmbracelet/x/exp/teatest v0.0.0-20260511125431-fe5
 go: downloading github.com/aymanbagabas/go-udiff v0.3.1
 === RUN   TestDashboardFlowMatrix_MissingCredentialsBlocksBeforePlan
 --- PASS: TestDashboardFlowMatrix_MissingCredentialsBlocksBeforePlan (0.08s)
+=== RUN   TestDashboardFlowMatrix_CredentialDeadEndOffersRecovery
+--- PASS: TestDashboardFlowMatrix_CredentialDeadEndOffersRecovery (0.19s)
 === RUN   TestDashboardFlowMatrix_DeselectOnlyTargetBlocksPlan
 --- PASS: TestDashboardFlowMatrix_DeselectOnlyTargetBlocksPlan (0.11s)
 === RUN   TestDashboardFlowMatrix_RWithoutConflictDoesNotAdvance
@@ -25,8 +27,8 @@ go: downloading github.com/aymanbagabas/go-udiff v0.3.1
 --- PASS: TestDashboardFlowMatrix_WorkspaceTargetShowsScopeWarning (0.11s)
 === RUN   TestDashboardFlowMatrix_MultiFileClientCanSelectOneCandidate
 --- PASS: TestDashboardFlowMatrix_MultiFileClientCanSelectOneCandidate (0.11s)
-=== RUN   TestDashboardFlowMatrix_StuckProviderReadyConflictHidesAll
---- PASS: TestDashboardFlowMatrix_StuckProviderReadyConflictHidesAll (0.06s)
+=== RUN   TestDashboardFlowMatrix_ProvidersVisibleDespiteClientConflict
+--- PASS: TestDashboardFlowMatrix_ProvidersVisibleDespiteClientConflict (0.08s)
 === RUN   TestDashboardFlowMatrix_DoubleEnterDuringValidationIsSafe
 --- PASS: TestDashboardFlowMatrix_DoubleEnterDuringValidationIsSafe (0.00s)
 === RUN   TestDashboardFlowMatrix_DoubleYDuringApplyIsSafe
@@ -47,5 +49,7 @@ go: downloading github.com/aymanbagabas/go-udiff v0.3.1
 --- PASS: TestDashboardFlowMatrix_BatchApplyThreeTargets (0.13s)
 === RUN   TestDashboardFlowMatrix_SequentialProvidersInOneSession
 --- PASS: TestDashboardFlowMatrix_SequentialProvidersInOneSession (0.00s)
+=== RUN   TestDashboardFlowMatrix_ApplyErrorOffersRecovery
+--- PASS: TestDashboardFlowMatrix_ApplyErrorOffersRecovery (0.13s)
 PASS
-ok  	github.com/nawodyaishan/universal-mcp-sync/pkg/tui	1.688s
+ok  	github.com/nawodyaishan/universal-mcp-sync/pkg/tui	2.024s

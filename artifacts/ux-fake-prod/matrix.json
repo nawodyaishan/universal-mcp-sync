@@ -13,7 +13,7 @@
     {
       "id": "FAKE-PROD-MATRIX",
       "kind": "docker-fake-prod-teatest",
-      "status": "pass",
+      "status": "fail",
       "artifacts": {
         "text": "fake-prod-matrix.txt"
       }
