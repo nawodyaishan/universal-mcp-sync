@@ -48,7 +48,8 @@ MCP client configuration is fragmented. Each AI client stores different JSON or 
 
 - **Two guided modes**: Doctor Mode for system-aware setup and Wizard Mode for direct provider-first setup.
 - **Dry-run first** so users see exact target files, actions, and redacted credentials before writes.
-- **Client-aware output** for `mcpServers`, `servers`, `context_servers`, `httpUrl`, `serverUrl`, TOML, and stdio bridges.
+- **Client-aware output** for `mcpServers`, `servers`, `context_servers`, `httpUrl`, `serverUrl`, TOML, and stdio bridges. Clients that use JSONC (JSON with comments) are handled transparently — existing comments are preserved on write.
+
 - **Local safety controls** with redaction, same-directory backups, atomic writes, rollback, and verification.
 - **Provider architecture** for adding more MCP servers without special-casing the UI.
 
@@ -401,6 +402,15 @@ make verify        # run local CI guard
 make gitignore-check # verify important fixtures are tracked/ignored correctly
 ```
 
+UX bug-hunting loop:
+```bash
+make record                              # drive a failing flow; transcript lands in artifacts/journeys/
+make replay TRANSCRIPT=… FIXTURE=…      # replay a transcript against a uxexplore fixture
+make ux-explore                          # run the full state-space explorer pipeline and gate (must exit 0)
+```
+
+`make ux-explore` enumerates every reachable `(screen × precondition)` state, probes every footer key, checks invariants I-01..I-17, and fails CI on any new dead-end or silent no-op finding without a matching justified matrix row.
+
 Install Git hooks:
 ```bash
 brew install lefthook  # or install from your OS package manager
@@ -414,6 +424,7 @@ Start with [CONTRIBUTING.md](CONTRIBUTING.md). Useful contributor docs:
 - [Adding an MCP Provider](docs/contributors/adding-a-provider.md)
 - [Dogfooding with Exa and Context7](docs/contributors/dogfooding-with-exa-context7.md)
 - [QA and Usability Strategy](docs/roadmap/qa-usability-strategy.md)
+- [E2E Testing Workflow](docs/contributors/e2e-testing-workflow.md)
 
 Before opening a PR, run:
 ```bash
