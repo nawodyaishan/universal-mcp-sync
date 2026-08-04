@@ -18,10 +18,14 @@ To provide a single source of truth for local AI toolchain configuration, allowi
 - Migrated Exa to the new provider-driven planning path.
 - Refactored `Operation` structures to be provider-neutral.
 
-### ⏳ Phase 3: stdio Engine & High-Value Providers (In Progress)
-- [ ] **GitHub Provider**: Support `npx -y @modelcontextprotocol/server-github` with personal access token auth.
-- [ ] **stdio Transport Implementation**: Robust `command`, `args`, and `env` handling for client configurations.
-- [ ] **Capability Matrix**: Formalize compatibility rules for targets that only support HTTP vs. stdio.
+### ✅ Phase 3: stdio Engine & High-Value Providers (Completed — v1.3.x)
+- [x] **GitHub Provider**: `npx -y @modelcontextprotocol/server-github` with personal access token auth.
+- [x] **stdio Transport Implementation**: Robust `command`, `args`, and `env` handling across all client configurations.
+- [x] **Capability Matrix**: Compatibility rules formalised for targets that only support HTTP vs. stdio.
+- [x] **Playwright Provider**: `npx -y @playwright/mcp` — no API key required.
+- [x] **Kubernetes Provider**: `npx -y @modelcontextprotocol/server-kubernetes` with kubeconfig path support.
+- [x] **Terraform Provider**: `npx -y @modelcontextprotocol/server-terraform` with workspace configuration.
+- [x] **CodeGraph Provider**: Local binary (`codegraph serve`) — no API key required, zero-credential stdio server.
 
 ### 🗺️ Phase 4: Safety & Fallbacks
 - [ ] **Intelligent Validation**: Implement automatic fallbacks for clients that cannot support a selected provider.
@@ -36,4 +40,5 @@ To provide a single source of truth for local AI toolchain configuration, allowi
 ## Strategic Direction
 - **Provider-Agnostic Core**: Ensure the engine remains decoupled from specific MCP implementations.
 - **Developer Experience First**: Maintain a "Zero-Leak" policy for secrets in the TUI/logs and ensure atomic, rollback-safe operations.
-- **Standardized Verification**: Expand our "Golden Path" test suite to cover stdio servers and varied transport configurations.
+- **Standardized Verification**: The "Golden Path" test suite now covers both HTTP/SSE and stdio transports; focus is expanding scenario coverage across the full provider/client matrix.
+- **Zero-Credential Providers**: Prioritise providers (like CodeGraph and Playwright) that need no API key, enabling contributors to dogfood `usync` immediately after `make build`.
