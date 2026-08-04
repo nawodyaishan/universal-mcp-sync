@@ -9,5 +9,7 @@ One-off specifications for adding new MCP providers to `pkg/provider`. Each file
 | [`add-playwright-provider.md`](add-playwright-provider.md) | Playwright |
 | [`add-tavily-provider.md`](add-tavily-provider.md) | Tavily |
 | [`add-terraform-provider.md`](add-terraform-provider.md) | Terraform |
+| [`add-codegraph-provider.md`](add-codegraph-provider.md) | CodeGraph |
 
 For the workflow that produced these, see [`docs/contributors/adding-a-provider.md`](../../contributors/adding-a-provider.md).
+
