@@ -909,3 +909,135 @@ func TestQATerraformDockerAllClients(t *testing.T) {
 		t.Errorf("Antigravity IDE should not be modified for Terraform stdio provider\n%s", data)
 	}
 }
+
+// TestQACodeGraphAllClients validates the CodeGraph provider across all supported clients.
+// CodeGraph is a 100% local stdio MCP server that requires no API keys or credentials.
+// It ships via npm (@colbymchenry/codegraph) and is launched with:
+//
+//	npx -y @colbymchenry/codegraph mcp
+//
+// Expected behaviour:
+//   - Every stdio-capable client receives an npx stdio config.
+//   - Antigravity CLI and Antigravity IDE are skipped (no stdio support).
+//   - No credential values appear anywhere in the output.
+func TestQACodeGraphAllClients(t *testing.T) {
+	homeDir := t.TempDir()
+
+	paths := map[config.AppID]string{
+		config.AppClaudeDesktop:  filepath.Join(homeDir, "Library", "Application Support", "Claude", "claude_desktop_config.json"),
+		config.AppCursor:         filepath.Join(homeDir, ".cursor", "mcp.json"),
+		config.AppVSCode:         filepath.Join(homeDir, ".vscode", "mcp.json"),
+		config.AppWindsurf:       filepath.Join(homeDir, ".codeium", "windsurf", "mcp_config.json"),
+		config.AppZed:            filepath.Join(homeDir, ".config", "zed", "settings.json"),
+		config.AppRooCode:        filepath.Join(homeDir, "Library", "Application Support", "Code", "User", "globalStorage", "saoudrizwan.claude-dev", "settings", "mcp_settings.json"),
+		config.AppOpenCode:       filepath.Join(homeDir, ".opencode.json"),
+		config.AppKiro:           filepath.Join(homeDir, ".kiro", "settings", "mcp.json"),
+		config.AppAntigravityCLI: filepath.Join(homeDir, ".gemini", "antigravity-cli", "mcp_config.json"),
+		config.AppAntigravity:    filepath.Join(homeDir, ".gemini", "config", "mcp_config.json"),
+		config.AppCodexCLI:       filepath.Join(homeDir, ".codex", "config.toml"),
+	}
+	for _, p := range paths {
+		mustWriteFile(t, p, []byte("{}"))
+	}
+	mustWriteFile(t, paths[config.AppCodexCLI], []byte(""))
+
+	manager := newDarwinQAManager(t, homeDir, fakeRunner{available: map[string]bool{"claude": true}})
+
+	prov := provider.NewCodeGraphProvider()
+	profiles := []provider.CredentialProfile{{
+		ProviderID: "codegraph",
+		Values:     map[string]string{},
+		Label:      "Default",
+	}}
+	selected := make(map[config.AppID]bool)
+	for _, id := range config.AppOrder {
+		selected[id] = true
+	}
+	assignments := DefaultAssignments(selected, 1)
+
+	plan, err := manager.PrepareProvider(prov, profiles, selected, assignments)
+	if err != nil {
+		t.Fatalf("PrepareProvider: %v", err)
+	}
+
+	// CodeGraph is stdio — Antigravity CLI and IDE must be skipped.
+	warnings := strings.Join(plan.Warnings, "\n")
+	if !strings.Contains(warnings, "Antigravity CLI does not support stdio transport") {
+		t.Errorf("expected Antigravity CLI skip warning, got:\n%s", warnings)
+	}
+	if !strings.Contains(warnings, "Antigravity IDE does not support stdio transport") {
+		t.Errorf("expected Antigravity IDE skip warning, got:\n%s", warnings)
+	}
+
+	// Claude Code CLI path must use the correct npx invocation.
+	foundClaudeCode := false
+	for _, op := range plan.Operations {
+		if op.AppID == config.AppClaudeCode {
+			foundClaudeCode = true
+			got := strings.Join(op.CLIAddArgs, " ")
+			want := "mcp add -s user codegraph -- npx -y @colbymchenry/codegraph mcp"
+			if got != want {
+				t.Fatalf("Claude Code args mismatch:\ngot:  %s\nwant: %s", got, want)
+			}
+		}
+	}
+	if !foundClaudeCode {
+		t.Fatal("expected Claude Code CLI operation")
+	}
+
+	_, err = manager.Apply(plan)
+	if err != nil {
+		t.Fatalf("Apply: %v", err)
+	}
+
+	// Claude Desktop: must receive the npx stdio command.
+	data, _ := os.ReadFile(paths[config.AppClaudeDesktop])
+	if !bytes.Contains(data, []byte(`"@colbymchenry/codegraph"`)) {
+		t.Errorf("Claude Desktop: expected CodeGraph package arg\n%s", data)
+	}
+
+	// Cursor: standard stdio JSON shape.
+	data, _ = os.ReadFile(paths[config.AppCursor])
+	if !bytes.Contains(data, []byte(`"command": "npx"`)) || !bytes.Contains(data, []byte(`"@colbymchenry/codegraph"`)) {
+		t.Errorf("Cursor: expected stdio CodeGraph config\n%s", data)
+	}
+
+	// VS Code: stdio provider must not be written as HTTP type.
+	data, _ = os.ReadFile(paths[config.AppVSCode])
+	if bytes.Contains(data, []byte(`"type": "http"`)) {
+		t.Errorf("VS Code: stdio provider must not be written as HTTP\n%s", data)
+	}
+
+	// Roo Code: must carry explicit stdio type.
+	data, _ = os.ReadFile(paths[config.AppRooCode])
+	if !bytes.Contains(data, []byte(`"type": "stdio"`)) {
+		t.Errorf("Roo Code: expected stdio type\n%s", data)
+	}
+	if bytes.Contains(data, []byte(`"streamable-http"`)) {
+		t.Errorf("Roo Code: stdio provider must not be written as streamable-http\n%s", data)
+	}
+
+	// OpenCode: local type for stdio.
+	data, _ = os.ReadFile(paths[config.AppOpenCode])
+	if !bytes.Contains(data, []byte(`"type": "local"`)) {
+		t.Errorf("OpenCode: expected local type for stdio\n%s", data)
+	}
+
+	// Codex CLI: TOML with correct npx command and args.
+	data, _ = os.ReadFile(paths[config.AppCodexCLI])
+	if !bytes.Contains(data, []byte(`[mcp_servers.codegraph]`)) ||
+		!bytes.Contains(data, []byte(`command = "npx"`)) ||
+		!bytes.Contains(data, []byte(`"@colbymchenry/codegraph"`)) {
+		t.Errorf("Codex: expected stdio TOML\n%s", data)
+	}
+
+	// Antigravity CLI and IDE: must remain untouched (stdio not supported).
+	data, _ = os.ReadFile(paths[config.AppAntigravityCLI])
+	if !bytes.Equal(data, []byte("{}")) {
+		t.Errorf("Antigravity CLI should not be modified for CodeGraph stdio provider\n%s", data)
+	}
+	data, _ = os.ReadFile(paths[config.AppAntigravity])
+	if !bytes.Equal(data, []byte("{}")) {
+		t.Errorf("Antigravity IDE should not be modified for CodeGraph stdio provider\n%s", data)
+	}
+}

@@ -129,4 +129,13 @@ var allProviders = []ProviderMeta{
 			{URL: "https://developer.hashicorp.com/terraform/mcp-server", Title: "Terraform MCP Server", VerifiedAt: "2026-05-21", Confidence: "official"},
 		},
 	},
+	{
+		ID:         ProviderCodeGraph,
+		Name:       "CodeGraph",
+		DocsURL:    "https://github.com/colbymchenry/codegraph",
+		RuntimeIDs: []string{"node", "npx"},
+		Sources: []SourceRef{
+			{URL: "https://github.com/colbymchenry/codegraph", Title: "CodeGraph", VerifiedAt: "2026-08-04", Confidence: "official"},
+		},
+	},
 }

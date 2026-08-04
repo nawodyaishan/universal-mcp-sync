@@ -1,0 +1,4 @@
+# managed-by=usync
+[mcp_servers.codegraph]
+command = "npx"
+args = ["-y", "@colbymchenry/codegraph", "mcp"]

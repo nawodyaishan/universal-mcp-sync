@@ -48,6 +48,7 @@ func TestAllProvidersIncludesSupportedProviderIDsInOrder(t *testing.T) {
 		ProviderPlaywright,
 		ProviderKubernetes,
 		ProviderTerraform,
+		ProviderCodeGraph,
 	}
 
 	if !slices.Equal(got, want) {

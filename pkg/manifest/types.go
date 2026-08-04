@@ -31,6 +31,7 @@ const (
 	ProviderPlaywright ProviderID = "playwright"
 	ProviderKubernetes ProviderID = "kubernetes"
 	ProviderTerraform  ProviderID = "terraform"
+	ProviderCodeGraph  ProviderID = "codegraph"
 )
 
 const (

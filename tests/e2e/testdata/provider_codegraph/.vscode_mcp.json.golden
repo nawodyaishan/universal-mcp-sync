@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "codegraph": {
+      "_usync": {
+        "at": "{{TIMESTAMP}}",
+        "managedBy": "usync",
+        "planID": ""
+      },
+      "args": [
+        "-y",
+        "@colbymchenry/codegraph",
+        "mcp"
+      ],
+      "command": "npx"
+    }
+  }
+}

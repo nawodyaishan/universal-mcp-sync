@@ -28,6 +28,7 @@ Configure an MCP server once, preview every file that would change, then sync na
 | **Playwright** | Browser automation through accessibility snapshots | Stdio via `npx` | None | Stable |
 | **Kubernetes** | Read-only Kubernetes and OpenShift runtime state | Stdio via `npx` | None; uses kubeconfig/RBAC | Beta |
 | **Terraform** | Terraform Registry and HCP Terraform context | Stdio via Docker | None required; operations disabled by default | Beta |
+| **CodeGraph** | Semantic code intelligence — call graphs, symbol maps, cross-file deps | Stdio via `npx` | None; fully local | Stable |
 
 The provider system is intentionally generic. New MCP servers are added through `MCPProvider`, then adapted per client through the capability matrix instead of branching the TUI or apply flow.
 
@@ -259,6 +260,7 @@ flowchart TB
         exa["Exa provider<br/>pkg/exa helpers"]
         context7["Context7 provider<br/>pkg/context7 helpers"]
         github["GitHub provider<br/>stdio npx + env"]
+        codegraph["CodeGraph provider<br/>stdio npx · fully local"]
     end
 
     subgraph clientLayer["Client Compatibility"]
@@ -295,9 +297,11 @@ flowchart TB
     providerAPI --> exa
     providerAPI --> context7
     providerAPI --> github
+    providerAPI --> codegraph
     exa --> manager
     context7 --> manager
     github --> manager
+    codegraph --> manager
     manager --> matrix
     matrix --> adapt
     adapt --> headers

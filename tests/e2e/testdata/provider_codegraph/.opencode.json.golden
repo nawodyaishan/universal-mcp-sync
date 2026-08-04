@@ -1,0 +1,14 @@
+{
+  "mcp": {
+    "codegraph": {
+      "command": [
+        "npx",
+        "-y",
+        "@colbymchenry/codegraph",
+        "mcp"
+      ],
+      "enabled": true,
+      "type": "local"
+    }
+  }
+}
