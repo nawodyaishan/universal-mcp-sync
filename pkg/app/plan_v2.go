@@ -68,11 +68,11 @@ type PlanOperation struct {
 	Manager       string   `json:"manager"`
 	CLICommand    []string `json:"cli_command,omitempty"`
 	Redacted      string   `json:"redacted"`
-	IsSymlink    bool               `json:"is_symlink"`
-	ResolvedPath string             `json:"resolved_path,omitempty"`
-	WillCreate   bool               `json:"will_create,omitempty"`
-	GitWarning   bool               `json:"git_warning,omitempty"`
-	Warnings     []string           `json:"warnings,omitempty"`
+	IsSymlink     bool     `json:"is_symlink"`
+	ResolvedPath  string   `json:"resolved_path,omitempty"`
+	WillCreate    bool     `json:"will_create,omitempty"`
+	GitWarning    bool     `json:"git_warning,omitempty"`
+	Warnings      []string `json:"warnings,omitempty"`
 	// VSCodeInputs holds the input variable definitions to merge into the VS Code
 	// mcp.json root-level "inputs" array when UseInputVariables is set.
 	VSCodeInputs []config.VSCodeInput `json:"vscode_inputs,omitempty"`

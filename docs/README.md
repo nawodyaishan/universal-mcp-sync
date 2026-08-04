@@ -25,7 +25,7 @@ Start here when looking for product, design, or process documentation.
 | `doctor-mode-phase0` … `phase14` | Phased work on the doctor → plan → apply pipeline. Phase 14 (UX explorer + recorder/replay) is the most recent. |
 | `e2e-testing/`, `e2e-testing-phase2/` | E2E test harness specs. |
 | `linux-support/` | Linux platform support spec. |
-| `providers/` | One-off provider integration specs (Context7, Kubernetes, Playwright, Tavily, Terraform). |
+| `providers/` | One-off provider integration specs (Context7, Kubernetes, Playwright, Tavily, Terraform, CodeGraph). |
 | `architecture-upgrade-plan.md` | Cross-cutting architecture refactor plan. |
 | `doctor-mode-remaining-implementation-plan.md` | Status sweep of leftover doctor-mode work. |
 | `month-1-plan.md`, `3-month-roadmap.md`, `qa-usability-plan.md` | Historical planning docs. |

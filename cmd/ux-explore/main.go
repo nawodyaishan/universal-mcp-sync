@@ -13,12 +13,12 @@ import (
 
 func main() {
 	var (
-		outDir         string
-		exclusions     string
-		allowlist      string
-		dashboardSrc   string
-		emitAllowlist  bool
-		expiresInDays  int
+		outDir        string
+		exclusions    string
+		allowlist     string
+		dashboardSrc  string
+		emitAllowlist bool
+		expiresInDays int
 	)
 	flag.StringVar(&outDir, "out", filepath.Join("artifacts", "ux-explore"), "output directory for findings + coverage + graph artifacts")
 	flag.StringVar(&exclusions, "exclusions", filepath.Join("pkg", "uxexplore", "exclusions.yaml"), "path to exclusions.yaml")

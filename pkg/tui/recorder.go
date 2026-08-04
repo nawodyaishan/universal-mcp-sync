@@ -16,14 +16,14 @@ import (
 // RecordEntry is one event in a session transcript. The schema is intentionally
 // flat so JSONL output is greppable.
 type RecordEntry struct {
-	Time      time.Time `json:"time"`
-	Kind      string    `json:"kind"`            // "key" | "screen" | "error" | "final" | "start"
-	Key       string    `json:"key,omitempty"`   // for kind=key
-	Screen    string    `json:"screen,omitempty"`
-	PC        string    `json:"pc,omitempty"`
-	BlockReason string  `json:"block_reason,omitempty"`
-	Message   string    `json:"message,omitempty"` // always passed through redact.Text
-	Digest    string    `json:"view_digest,omitempty"`
+	Time        time.Time `json:"time"`
+	Kind        string    `json:"kind"`          // "key" | "screen" | "error" | "final" | "start"
+	Key         string    `json:"key,omitempty"` // for kind=key
+	Screen      string    `json:"screen,omitempty"`
+	PC          string    `json:"pc,omitempty"`
+	BlockReason string    `json:"block_reason,omitempty"`
+	Message     string    `json:"message,omitempty"` // always passed through redact.Text
+	Digest      string    `json:"view_digest,omitempty"`
 }
 
 // SessionRecorder is a JSONL transcript writer for a dashboard session. All

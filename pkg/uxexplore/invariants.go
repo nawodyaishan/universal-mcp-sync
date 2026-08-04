@@ -58,14 +58,14 @@ func (I01FooterActionsValid) Check(m tui.DashboardModel) error {
 // no-op so the invariant ID stays referenceable from findings.
 type I02HiddenKeysNoAdvance struct{}
 
-func (I02HiddenKeysNoAdvance) ID() string                    { return "I-02" }
+func (I02HiddenKeysNoAdvance) ID() string                       { return "I-02" }
 func (I02HiddenKeysNoAdvance) Check(_ tui.DashboardModel) error { return nil }
 
 // --- I-03 -----------------------------------------------------------------
 // I-03 is fully verified by the probe's double-press pass. Per-visit no-op.
 type I03RepeatedPrimaryStable struct{}
 
-func (I03RepeatedPrimaryStable) ID() string                    { return "I-03" }
+func (I03RepeatedPrimaryStable) ID() string                       { return "I-03" }
 func (I03RepeatedPrimaryStable) Check(_ tui.DashboardModel) error { return nil }
 
 // --- I-04 -----------------------------------------------------------------
@@ -85,7 +85,7 @@ func (I04RequiresCredsBlocksPlan) Check(m tui.DashboardModel) error {
 // coverage rather than a per-visit check.
 type I05NoKeyPlansWithoutCreds struct{}
 
-func (I05NoKeyPlansWithoutCreds) ID() string                    { return "I-05" }
+func (I05NoKeyPlansWithoutCreds) ID() string                       { return "I-05" }
 func (I05NoKeyPlansWithoutCreds) Check(_ tui.DashboardModel) error { return nil }
 
 // --- I-06 -----------------------------------------------------------------
@@ -93,7 +93,7 @@ func (I05NoKeyPlansWithoutCreds) Check(_ tui.DashboardModel) error { return nil 
 // plan output; lives in the analyzer once findings include plan content.
 type I06CheckboxMatchesPlan struct{}
 
-func (I06CheckboxMatchesPlan) ID() string                    { return "I-06" }
+func (I06CheckboxMatchesPlan) ID() string                       { return "I-06" }
 func (I06CheckboxMatchesPlan) Check(_ tui.DashboardModel) error { return nil }
 
 // --- I-07 -----------------------------------------------------------------
@@ -125,25 +125,25 @@ func (I08ConflictBlocksPlan) Check(m tui.DashboardModel) error {
 // readiness cleared). Per-visit no-op.
 type I09ResolvedConflictNotBlocked struct{}
 
-func (I09ResolvedConflictNotBlocked) ID() string                    { return "I-09" }
+func (I09ResolvedConflictNotBlocked) ID() string                       { return "I-09" }
 func (I09ResolvedConflictNotBlocked) Check(_ tui.DashboardModel) error { return nil }
 
 // --- I-10 -----------------------------------------------------------------
 type I10ChosenCandidateReachesPlan struct{}
 
-func (I10ChosenCandidateReachesPlan) ID() string                    { return "I-10" }
+func (I10ChosenCandidateReachesPlan) ID() string                       { return "I-10" }
 func (I10ChosenCandidateReachesPlan) Check(_ tui.DashboardModel) error { return nil }
 
 // --- I-11 -----------------------------------------------------------------
 type I11SkippedConflictNotPlanned struct{}
 
-func (I11SkippedConflictNotPlanned) ID() string                    { return "I-11" }
+func (I11SkippedConflictNotPlanned) ID() string                       { return "I-11" }
 func (I11SkippedConflictNotPlanned) Check(_ tui.DashboardModel) error { return nil }
 
 // --- I-12 -----------------------------------------------------------------
 type I12WorkspaceToggleHasEffect struct{}
 
-func (I12WorkspaceToggleHasEffect) ID() string                    { return "I-12" }
+func (I12WorkspaceToggleHasEffect) ID() string                       { return "I-12" }
 func (I12WorkspaceToggleHasEffect) Check(_ tui.DashboardModel) error { return nil }
 
 // --- I-13 -----------------------------------------------------------------
@@ -171,7 +171,7 @@ func (I13ErrorOffersRecovery) Check(m tui.DashboardModel) error {
 // --- I-14 -----------------------------------------------------------------
 type I14EscRestoresPrevious struct{}
 
-func (I14EscRestoresPrevious) ID() string                    { return "I-14" }
+func (I14EscRestoresPrevious) ID() string                       { return "I-14" }
 func (I14EscRestoresPrevious) Check(_ tui.DashboardModel) error { return nil }
 
 // --- I-15 -----------------------------------------------------------------
@@ -184,7 +184,7 @@ func (I14EscRestoresPrevious) Check(_ tui.DashboardModel) error { return nil }
 // awareness lands in PR 14g.
 type I15NoRawCredentialInView struct{}
 
-func (I15NoRawCredentialInView) ID() string                    { return "I-15" }
+func (I15NoRawCredentialInView) ID() string                       { return "I-15" }
 func (I15NoRawCredentialInView) Check(_ tui.DashboardModel) error { return nil }
 
 // --- I-16 -----------------------------------------------------------------

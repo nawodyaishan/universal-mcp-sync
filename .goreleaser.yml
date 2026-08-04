@@ -44,14 +44,15 @@ changelog:
       - "^ci:"
       - "^chore:"
 
-# Homebrew Cask (replaces deprecated brews)
-homebrew_casks:
+brews:
   - repository:
       owner: nawodyaishan
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    directory: Formula
     homepage: "https://github.com/nawodyaishan/universal-mcp-sync"
     description: "macOS-first developer utility for universal MCP configuration sync"
+    license: "MIT"
 
 # nFPM for deb/rpm packages (bonus)
 nfpms:
