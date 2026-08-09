@@ -1,6 +1,6 @@
 module github.com/nawodyaishan/universal-mcp-sync
 
-go 1.24.2
+go 1.25.0
 
 require (
 	github.com/charmbracelet/bubbles v1.0.0
@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/x/exp/golden v0.0.0-20241011142426-46044092ad91
 	github.com/charmbracelet/x/exp/teatest v0.0.0-20260511125431-fe5d686e0c99
 	github.com/muesli/termenv v0.16.0
-	golang.org/x/sys v0.38.0
+	golang.org/x/sys v0.47.0
 )
 
 require (
